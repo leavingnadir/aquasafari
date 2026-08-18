@@ -1,3 +1,5 @@
+<img width="1280" height="320" alt="BANNER" src="https://github.com/user-attachments/assets/5f7b6004-18e1-4dce-9ff5-18c340d6e7fa" />
+
 # 🚤 AquaSafari – Web Based Boat Safari Trip Management System
 
 ## 📌 Project Overview
@@ -151,46 +153,6 @@ npm run dev
 ```
 
 Frontend runs at: **http://localhost:5173**
-
----
-
-## 🔗 API Endpoints (sample)
-
-Base URL: `http://localhost:8080/api`
-
-| Method   | Endpoint              | Description                  |
-|----------|------------------------|-------------------------------|
-| `GET`    | `/trips`               | Get all available trips       |
-| `GET`    | `/trips/{id}`          | Get trip details by ID        |
-| `POST`   | `/bookings`             | Create a new booking          |
-| `GET`    | `/bookings/{id}`        | Get booking details           |
-| `DELETE` | `/bookings/{id}`        | Cancel a booking              |
-| `POST`   | `/payments`              | Process a payment             |
-| `GET`    | `/payments/history/{customerId}` | Get payment history for a customer |
-| `GET`    | `/boats`                | Get all boats                 |
-| `POST`   | `/boats`                 | Add a new boat                |
-| `GET`    | `/feedback`              | Get customer feedback         |
-
-*(Update this table as each module's actual endpoints are implemented.)*
-
----
-
-## 🌿 Git Branching Strategy
-
-We use one long-lived branch per major function, branched off `dev`, and merged back via Pull Requests.
-
-| Branch                          | Owner                  | Major Function            |
-|----------------------------------|-------------------------|-----------------------------|
-| `main`                           | —                        | Stable, deployable code    |
-| `dev`                            | —                        | Integration branch          |
-| `feature/user-admin-management`  | Nimalthilaka N.M.S.U     | User & Admin Management    |
-| `feature/boat-management`        | Ekanayake E.M.I.U        | Boat Management             |
-| `feature/trip-management`        | Lakshan A.M.S.U          | Trip Management             |
-| `feature/booking-management`     | Hemanga B.M.T            | Booking Management          |
-| `feature/payment-management`     | Ranaweera R.H.H.V        | Payment Management          |
-| `feature/feedback-management`    | Muthuthanthri M.B.M.A    | Feedback & Reviews Management |
-
-See **AquaSafari_Git_Setup_Guide.html** in this repo for the full step-by-step Git, Spring Boot, and React setup walkthrough with commands.
 
 ---
 
