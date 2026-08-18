@@ -83,17 +83,14 @@ Click **Generate → Download ZIP**, then unzip it into the `backend/` folder of
 > If you already generated the project with MySQL Driver selected, just swap the dependency in `pom.xml` — see below.
 
 ---
-
-## 🗄️ Database Setup (Microsoft SQL Server + SSMS)
-
-Each member runs their **own local SQL Server instance** — you don't share one server between the 6 of you. Everyone points their app at `localhost`, and the schema stays in sync because it's generated from the same JPA entity classes in Git (see below).
-
-1. Install **SQL Server** (Developer or Express edition) and **SQL Server Management Studio (SSMS)**.
-2. During SQL Server install, enable **Mixed Mode Authentication** and set an `sa` password (write it down — every teammate will use the same one for consistency).
-3. Open SSMS → connect to `localhost` (or `localhost\SQLEXPRESS` if you installed Express) using **SQL Server Authentication**, login `sa`.
-4. Right-click **Databases → New Database**, name it `AquaSafariDB`.
-5. In `backend/pom.xml`, make sure the SQL Server driver dependency is present:
-
+ 
+## 🗄️ Database Setup (Azure SQL Database — shared by the whole team)
+ 
+We use **one shared Azure SQL Database** — nobody installs SQL Server locally. Every member's Spring Boot app connects to the same cloud database over the internet, so data created by one module (e.g. a booking) is immediately visible to every other module (e.g. Payment).
+ 
+1. Get the connection details from whoever set up the Azure SQL server (server name, database name, admin username/password). Keep these out of GitHub — share them over a private channel (WhatsApp/Discord/etc).
+2. Make sure your IP is allowed through the server's firewall — see **Section 4** of `AquaSafari_Git_Setup_Guide.html` if you get a connection-refused error (this is the most common setup issue; campus/home WiFi IPs can also change over time).
+3. In `backend/pom.xml`, make sure the SQL Server driver dependency is present:
 ```xml
 <dependency>
     <groupId>com.microsoft.sqlserver</groupId>
@@ -101,23 +98,38 @@ Each member runs their **own local SQL Server instance** — you don't share one
     <scope>runtime</scope>
 </dependency>
 ```
-
-6. Update `backend/src/main/resources/application.properties`:
-
+ 
+4. Update `backend/src/main/resources/application.properties` (this file is git-ignored — see `database/application-example.properties` for the template):
 ```properties
-spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=AquaSafariDB;encrypt=false;trustServerCertificate=true
-spring.datasource.username=sa
-spring.datasource.password=your_password
+spring.datasource.url=jdbc:sqlserver://<your-server-name>.database.windows.net:1433;database=AquaSafariDB;encrypt=true;trustServerCertificate=false
+spring.datasource.username=<shared_admin_username>
+spring.datasource.password=<shared_admin_password>
 spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
-
+ 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.SQLServerDialect
 ```
-
-> With `ddl-auto=update`, Hibernate creates/updates the tables automatically from your `@Entity` classes the first time you run the app — nobody needs to run manual `CREATE TABLE` scripts, and everyone's local database ends up with the same structure as long as the entity classes are the same (which Git guarantees).
-
-> Never commit real `sa` passwords to a public repo. For a private academic repo it's common to just share the convention with your team; for anything else, keep credentials in a local `application-local.properties` or environment variables instead.
+ 
+> With `ddl-auto=update`, Hibernate creates/updates tables automatically from your `@Entity` classes the first time you run the app — nobody writes or shares manual `CREATE TABLE` scripts. Since everyone connects to the same Azure database, tables created by one member's entities are immediately visible to everyone else.
+ 
+5. (Optional) Connect via **SSMS** to browse/verify the shared data directly: Server name = `<your-server-name>.database.windows.net`, Authentication = SQL Server Authentication, using the shared admin credentials.
+> Never commit real Azure credentials to GitHub. Keep `application.properties` in `.gitignore` and only commit the placeholder `database/application-example.properties` template.
+ 
+See the [`database/`](./database) folder for the connection-string template and optional demo seed data.
+ 
+---
+ 
+## 📁 `database/` folder
+ 
+This folder does **not** hold the schema — Hibernate generates tables automatically from the JPA entity classes, directly in the shared Azure database. It holds reference files only:
+ 
+```
+database/
+├── application-example.properties   # Azure connection template
+├── seed-data.sql                     # optional sample data for demos
+└── README.md                          # explains what's here
+```
 
 ---
 
