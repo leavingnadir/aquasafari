@@ -145,7 +145,7 @@
   <h1>🚤 AquaSafari — Team Setup &amp; Git Workflow Guide</h1>
   <p>Web Based Boat Safari Trip Management System</p>
   <p>Group ID: 2026-Y2-S1-MLB-B03G2-03 · SE2030 Software Engineering</p>
-  <span class="badge">React + Spring Boot + MySQL (XAMPP)</span>
+  <span class="badge">React + Spring Boot + Microsoft SQL Server (SSMS)</span>
 </header>
 
 <nav class="toc">
@@ -154,7 +154,7 @@
     <li><a href="#prereq">Install prerequisites</a></li>
     <li><a href="#repo">Create &amp; clone the GitHub repo</a></li>
     <li><a href="#branches">Set up the 6 team branches</a></li>
-    <li><a href="#xampp">Set up XAMPP &amp; MySQL</a></li>
+    <li><a href="#xampp">Set up SQL Server &amp; SSMS (on every laptop)</a></li>
     <li><a href="#initializr">Generate the backend (Spring Initializr)</a></li>
     <li><a href="#backend-run">Run the Spring Boot backend</a></li>
     <li><a href="#frontend">Set up &amp; run the React frontend</a></li>
@@ -220,20 +220,46 @@ git push -u origin feature/payment-management</code></pre>
 </section>
 
 <section class="step" id="xampp">
-  <h2><span class="num">4</span> Set up XAMPP &amp; MySQL</h2>
+  <h2><span class="num">4</span> Set up SQL Server &amp; SSMS (on every laptop)</h2>
+  <p>Unlike XAMPP/MySQL, SQL Server isn't a shared server the team connects to remotely — <strong>each of the 6 members installs and runs their own local SQL Server instance</strong> on their own laptop. Everyone's Spring Boot app talks to <code>localhost</code>, and all six databases end up with the same table structure because that structure is generated from the same JPA entity classes, which live in Git.</p>
+
+  <h3>4.1 — Install (each member does this once)</h3>
   <ol>
-    <li>Install XAMPP, open the <strong>XAMPP Control Panel</strong>, and click <strong>Start</strong> next to <strong>Apache</strong> and <strong>MySQL</strong>.</li>
-    <li>Open <code>http://localhost/phpmyadmin</code> in your browser.</li>
-    <li>Click <strong>New</strong> and create a database named <code>aquasafari_db</code>.</li>
-    <li>Leave the default XAMPP MySQL credentials (<code>root</code> user, blank password) unless your team has set a password.</li>
+    <li>Download and install <strong>SQL Server</strong> — Developer or Express edition (both free) — from Microsoft's site.</li>
+    <li>During setup, choose <strong>Mixed Mode Authentication</strong> and set an <code>sa</code> password. <strong>Agree on the same password as a team</strong> so everyone's <code>application.properties</code> looks identical.</li>
+    <li>Install <strong>SQL Server Management Studio (SSMS)</strong> separately if it isn't bundled — it's the GUI tool used to browse and query the database.</li>
   </ol>
-  <p>Each member's Spring Boot app should point at the same schema name so table structures line up when merging. Add this to <code>backend/src/main/resources/application.properties</code>:</p>
-<pre><code>spring.datasource.url=jdbc:mysql://localhost:3306/aquasafari_db
-spring.datasource.username=root
-spring.datasource.password=
+
+  <h3>4.2 — Create the database (each member does this once)</h3>
+  <ol>
+    <li>Open SSMS and connect: <strong>Server name</strong> = <code>localhost</code> (or <code>localhost\SQLEXPRESS</code> for the Express edition), <strong>Authentication</strong> = SQL Server Authentication, <strong>Login</strong> = <code>sa</code>, with the password you set.</li>
+    <li>In Object Explorer, right-click <strong>Databases → New Database</strong>.</li>
+    <li>Name it <code>AquaSafariDB</code> — use this exact name on all six laptops.</li>
+  </ol>
+
+  <h3>4.3 — Connect Spring Boot to SQL Server</h3>
+  <p>In <code>backend/pom.xml</code>, make sure the SQL Server JDBC driver is a dependency (add it if it isn't there, or if the project was generated with the MySQL driver instead):</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
+    &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre>
+  <p>Add this to <code>backend/src/main/resources/application.properties</code>:</p>
+<pre><code>spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=AquaSafariDB;encrypt=false;trustServerCertificate=true
+spring.datasource.username=sa
+spring.datasource.password=your_agreed_password
+spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true</code></pre>
-  <div class="callout warn">Never commit real passwords to Git. If your team later uses different local passwords, keep <code>application.properties</code> out of shared credentials or use a <code>application-local.properties</code> per member.</div>
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.SQLServerDialect</code></pre>
+  <div class="callout tip">With <code>ddl-auto=update</code>, Hibernate builds the tables straight from your <code>@Entity</code> classes the first time each person runs the app — nobody has to write or share manual <code>CREATE TABLE</code> SQL. As long as everyone <code>git pull</code>s the same entity classes, all six local databases end up structurally identical.</div>
+  <div class="callout warn">If SQL Server is installed on Windows and you named the instance during setup (common with Express, e.g. <code>SQLEXPRESS</code>), your JDBC URL needs the instance name instead of the port, e.g.<br><code>jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=AquaSafariDB;encrypt=false;trustServerCertificate=true</code> — check under SSMS → server properties if you're not sure which one applies.</div>
+  <div class="callout warn">Never commit real passwords to a public GitHub repo. For a private academic repo, sharing one agreed <code>sa</code> password across the team is common practice — for anything beyond coursework, use a per-member <code>application-local.properties</code> (git-ignored) or environment variables instead.</div>
+
+  <h3>4.4 — Verify the data (any member)</h3>
+  <p>After running the backend once, refresh the database in SSMS and expand <strong>AquaSafariDB → Tables</strong> — your JPA entities should now appear as tables. You can inspect rows with:</p>
+<pre><code>SELECT * FROM Payment;</code></pre>
 </section>
 
 <section class="step" id="initializr">
@@ -249,7 +275,7 @@ spring.jpa.show-sql=true</code></pre>
     <tr><td>Packaging</td><td>Jar</td></tr>
     <tr><td>Java</td><td>17</td></tr>
   </table>
-  <p><strong>Dependencies to add:</strong> Spring Web, Spring Data JPA, MySQL Driver, Spring Security, Lombok, Validation (optionally Spring Boot DevTools).</p>
+  <p><strong>Dependencies to add:</strong> Spring Web, Spring Data JPA, MS SQL Server Driver, Spring Security, Lombok, Validation (optionally Spring Boot DevTools).</p>
   <p>Click <strong>Generate</strong>, download the zip, and unzip it as the <code>backend/</code> folder inside the cloned repo.</p>
 </section>
 

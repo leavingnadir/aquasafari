@@ -1,4 +1,4 @@
-# AQUASAFARI  - Web based Boat Safari Trip Management System
+# 🚤 AquaSafari – Web Based Boat Safari Trip Management System
 
 ## 📌 Project Overview
 
@@ -27,13 +27,13 @@ Through the system, **customers** can search for trips, make bookings, pay onlin
 - Lombok, Validation
 
 ### 🔹 Database
-- MySQL (via XAMPP)
+- Microsoft SQL Server (via SQL Server Management Studio - SSMS)
 
 ### 🔹 Tools
-- VS Code
+- IntelliJ IDEA / VS Code
 - Postman (API testing)
 - Git & GitHub (version control)
-- XAMPP Control Panel (Apache + MySQL + phpMyAdmin)
+- SQL Server Management Studio (SSMS)
 
 ---
 
@@ -68,7 +68,7 @@ aquasafari/
 **Required**
 - Spring Web
 - Spring Data JPA
-- MySQL Driver
+- MS SQL Server Driver
 - Spring Security
 - Lombok
 - Validation
@@ -78,25 +78,44 @@ aquasafari/
 
 Click **Generate → Download ZIP**, then unzip it into the `backend/` folder of the repo.
 
+> If you already generated the project with MySQL Driver selected, just swap the dependency in `pom.xml` — see below.
+
 ---
 
-## 🗄️ Database Setup (XAMPP + MySQL)
+## 🗄️ Database Setup (Microsoft SQL Server + SSMS)
 
-1. Install [XAMPP](https://www.apachefriends.org/) and start the **Apache** and **MySQL** modules from the XAMPP Control Panel.
-2. Open **phpMyAdmin** at `http://localhost/phpmyadmin`.
-3. Create a new database, e.g. `aquasafari_db`.
-4. Update `backend/src/main/resources/application.properties`:
+Each member runs their **own local SQL Server instance** — you don't share one server between the 6 of you. Everyone points their app at `localhost`, and the schema stays in sync because it's generated from the same JPA entity classes in Git (see below).
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/aquasafari_db
-spring.datasource.username=root
-spring.datasource.password=
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+1. Install **SQL Server** (Developer or Express edition) and **SQL Server Management Studio (SSMS)**.
+2. During SQL Server install, enable **Mixed Mode Authentication** and set an `sa` password (write it down — every teammate will use the same one for consistency).
+3. Open SSMS → connect to `localhost` (or `localhost\SQLEXPRESS` if you installed Express) using **SQL Server Authentication**, login `sa`.
+4. Right-click **Databases → New Database**, name it `AquaSafariDB`.
+5. In `backend/pom.xml`, make sure the SQL Server driver dependency is present:
+
+```xml
+<dependency>
+    <groupId>com.microsoft.sqlserver</groupId>
+    <artifactId>mssql-jdbc</artifactId>
+    <scope>runtime</scope>
+</dependency>
 ```
 
-> Adjust the username/password if your XAMPP MySQL instance uses different credentials.
+6. Update `backend/src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=AquaSafariDB;encrypt=false;trustServerCertificate=true
+spring.datasource.username=sa
+spring.datasource.password=your_password
+spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.SQLServerDialect
+```
+
+> With `ddl-auto=update`, Hibernate creates/updates the tables automatically from your `@Entity` classes the first time you run the app — nobody needs to run manual `CREATE TABLE` scripts, and everyone's local database ends up with the same structure as long as the entity classes are the same (which Git guarantees).
+
+> Never commit real `sa` passwords to a public repo. For a private academic repo it's common to just share the convention with your team; for anything else, keep credentials in a local `application-local.properties` or environment variables instead.
 
 ---
 
@@ -118,7 +137,7 @@ mvnw.cmd spring-boot:run
 ./mvnw spring-boot:run
 ```
 
-Backend runs at: **http://localhost:8080**
+Backend runs at: **http://localhost:8080** (or the port set in `application.properties`)
 
 ---
 
@@ -137,7 +156,7 @@ Frontend runs at: **http://localhost:5173**
 
 ## 🔗 API Endpoints (sample)
 
-Base URL: `http://localhost:8081/api`
+Base URL: `http://localhost:8080/api`
 
 | Method   | Endpoint              | Description                  |
 |----------|------------------------|-------------------------------|
