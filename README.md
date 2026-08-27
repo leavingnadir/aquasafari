@@ -1,3 +1,5 @@
+<img width="1280" height="320" alt="Banner" src="https://github.com/user-attachments/assets/5c0b6177-0091-41df-a5db-1e2d53d5429f" />
+
 # 🚤 AquaSafari – Web Based Boat Safari Trip Management System
 
 ## 📌 Project Overview
