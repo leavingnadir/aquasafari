@@ -1,37 +1,96 @@
--- AquaSafari — optional seed data
--- Run this against the shared Azure SQL Database (Section 4 of the guide),
--- after all six members' entity classes have been merged into dev and
--- the tables already exist (Hibernate creates them on first backend run).
---
--- This is only for giving the team consistent demo data — it is NOT
--- required for the app itself to work, and table/column names below
--- are examples: adjust them to match your actual @Entity field names.
+USE AquaSafariDB;
 
--- Sample users
--- INSERT INTO Users (Name, Email, Phone, PasswordHash, Role) VALUES
--- ('Nimal Perera', 'nimal@example.com', '0771234567', 'hashed_password', 'CUSTOMER'),
--- ('Admin User', 'admin@aquasafari.com', '0777654321', 'hashed_password', 'ADMIN');
+CREATE TABLE users (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    password VARCHAR(255),
+    role VARCHAR(20)
+);
 
--- Sample boats
--- INSERT INTO Boat (Name, Capacity, Type, Status) VALUES
--- ('Ocean Breeze', 12, 'Speedboat', 'AVAILABLE'),
--- ('River Explorer', 8, 'Longtail', 'AVAILABLE');
+CREATE TABLE boats (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name VARCHAR(100),
+    capacity INT,
+    status VARCHAR(20)
+);
 
--- Sample trips
--- INSERT INTO Trip (BoatId, Route, DepartureTime, DurationMinutes, Price) VALUES
--- (1, 'Bentota River Safari', '2026-09-01 09:00:00', 90, 3500.00);
+CREATE TABLE trips (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    boat_id INT FOREIGN KEY REFERENCES boats(id),
+    trip_date DATE,
+    price DECIMAL(10,2)
+);
 
--- Sample booking
--- INSERT INTO Booking (UserId, TripId, Passengers, Status) VALUES
--- (1, 1, 2, 'CONFIRMED');
+CREATE TABLE bookings (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    trip_id INT FOREIGN KEY REFERENCES trips(id),
+    user_id INT FOREIGN KEY REFERENCES users(id),
+    status VARCHAR(20)
+);
 
--- Sample payment (Payment Management module)
--- INSERT INTO Payment (BookingId, Amount, PaymentMethod, Status, PaymentDate) VALUES
--- (1, 3500.00, 'CARD', 'PAID', '2026-08-20');
+CREATE TABLE feedback (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    booking_id INT FOREIGN KEY REFERENCES bookings(id),
+    user_id INT FOREIGN KEY REFERENCES users(id),
+    rating INT,
+    comment VARCHAR(500)
+);
 
--- Verify:
--- SELECT * FROM Users;
--- SELECT * FROM Boat;
--- SELECT * FROM Trip;
--- SELECT * FROM Booking;
--- SELECT * FROM Payment;
+CREATE TABLE payments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    booking_id INT FOREIGN KEY REFERENCES bookings(id),
+    amount DECIMAL(10,2),
+    status VARCHAR(20)
+);
+
+
+-- Users
+INSERT INTO users (name, email, password, role)
+VALUES 
+('Test Customer', 'testuser@example.com', 'dummy_hashed_pw', 'CUSTOMER'),
+('Nimal Perera', 'nimal@example.com', 'dummy_hashed_pw', 'CUSTOMER'),
+('Test Admin', 'admin@example.com', 'dummy_hashed_pw', 'ADMIN');
+
+-- Boats
+INSERT INTO boats (name, capacity, status)
+VALUES 
+('Ocean Explorer', 12, 'AVAILABLE'),
+('Sea Breeze', 8, 'MAINTENANCE'),
+('Wave Rider', 20, 'AVAILABLE');
+
+-- Trips
+INSERT INTO trips (boat_id, trip_date, price)
+VALUES 
+(1, '2026-09-15', 5000.00),
+(1, '2026-09-22', 5000.00),
+(2, '2026-09-20', 3500.00),
+(3, '2026-09-25', 7500.00);
+
+-- Bookings
+INSERT INTO bookings (trip_id, user_id, status)
+VALUES 
+(1, 1, 'CONFIRMED'),
+(2, 1, 'PENDING'),
+(3, 2, 'CONFIRMED'),
+(4, 2, 'CANCELLED');
+
+-- Payments
+INSERT INTO payments (booking_id, amount, status)
+VALUES 
+(1, 5000.00, 'COMPLETED'),
+(2, 5000.00, 'PENDING'),
+(3, 3500.00, 'COMPLETED');
+
+-- Feedback
+INSERT INTO feedback (booking_id, user_id, rating, comment)
+VALUES 
+(1, 1, 5, 'Great trip, very smooth!'),
+(3, 2, 4, 'Good experience, slightly delayed departure.');
+
+SELECT * FROM users;
+SELECT * FROM boats;
+SELECT * FROM trips;
+SELECT * FROM bookings;
+SELECT * FROM payments;
+SELECT * FROM feedback;
