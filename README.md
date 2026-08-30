@@ -171,6 +171,9 @@ Backend runs at: **http://localhost:8080** (or the port set in `application.prop
 cd frontend
 npm install
 npm install axios
+npm install lucide-react
+npm install react-router-dom
+npm install -D tailwindcss@3.4.17 postcss autoprefixer
 npm run dev
 ```
 
