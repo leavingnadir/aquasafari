@@ -94,3 +94,11 @@ SELECT * FROM trips;
 SELECT * FROM bookings;
 SELECT * FROM payments;
 SELECT * FROM feedback;
+
+DROP TABLE payments;
+
+INSERT INTO payment (amount, bookingid, payment_date, payment_method, payment_status, transaction_reference)
+VALUES 
+(5000.00, 1, GETDATE(), 'CARD', 'PAID', 'TXN-00123'),
+(3500.00, 3, GETDATE(), 'BANK_TRANSFER', 'PAID', 'TXN-00124'),
+(7500.00, 2, GETDATE(), 'MOBILE_WALLET', 'PENDING', NULL);
