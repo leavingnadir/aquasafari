@@ -102,3 +102,9 @@ VALUES
 (5000.00, 1, GETDATE(), 'CARD', 'PAID', 'TXN-00123'),
 (3500.00, 3, GETDATE(), 'BANK_TRANSFER', 'PAID', 'TXN-00124'),
 (7500.00, 2, GETDATE(), 'MOBILE_WALLET', 'PENDING', NULL);
+
+-- 1 boat
+INSERT INTO boats (name, capacity, status)
+VALUES ('Speedboat', 12, 'Good');
+ 
+ SELECT * FROM boats;
