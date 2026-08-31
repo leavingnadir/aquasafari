@@ -4,19 +4,19 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("ADMIN")
-public class Administrator extends User {
+@DiscriminatorValue("BOAT_OPERATOR")
+public class BoatOperator extends User {
 
-    public Administrator() {
+    public BoatOperator() {
         super();
     }
 
-    public Administrator(String email, String phone, String passwordHash, String firstName, String lastName) {
+    public BoatOperator(String email, String phone, String passwordHash, String firstName, String lastName) {
         super(email, phone, passwordHash, firstName, lastName);
     }
 
     @Override
     public Role getRole() {
-        return Role.ADMIN;
+        return Role.BOAT_OPERATOR;
     }
 }
