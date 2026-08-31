@@ -1,5 +1,8 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
@@ -17,13 +20,28 @@ import ProcessPayment from "./pages/payment/ProcessPayment.jsx";
 import PaymentHistory from "./pages/payment/PaymentHistory.jsx";
 import PaymentRecords from "./pages/payment/PaymentRecords.jsx";
 
+// Usernadmin module
+import CustomerManagement from "./pages/usernadmin/CustomerManagement.jsx";
+import Login from "./pages/usernadmin/Login.jsx";
+import Register from "./pages/usernadmin/Register.jsx";
+import StaffManagement from "./pages/usernadmin/StaffManagement.jsx";
+
 export default function App() {
   return (
+    <AuthProvider>
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+
+          {/* Auth - public */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Admin only */}
+          <Route path="/admin/staff" element={<ProtectedRoute roles={["ADMIN"]}><StaffManagement /></ProtectedRoute>}/>
+          <Route path="/admin/customers" element={ <ProtectedRoute roles={["ADMIN"]}><CustomerManagement /></ProtectedRoute>}/>
 
           {/* Boat module */}
           <Route path="/boat/manage" element={<BoatManagement />} />
@@ -33,10 +51,11 @@ export default function App() {
           <Route path="/booking/my-bookings" element={<MyBookings />} />
 
           {/* Payment module */}
-          <Route path="/payment/checkout" element={<ProcessPayment />} />
-          <Route path="/payment/history" element={<PaymentHistory />} />
-          <Route path="/payment/records" element={<PaymentRecords />} />
-          
+          <Route path="/payment/checkout" element={<ProtectedRoute><ProcessPayment /></ProtectedRoute>}/>
+          <Route path="/payment/history" element={ <ProtectedRoute roles={["ADMIN", "ACCOUNTANT"]}> <PaymentHistory /></ProtectedRoute>}/>
+          <Route path="/payment/records" element={<ProtectedRoute roles={["ADMIN", "ACCOUNTANT"]}><PaymentRecords /></ProtectedRoute>}/>
+
+
           <Route path="/destinations" element={<ComingSoon title="Destinations" />} />
           <Route path="/how-it-works" element={<ComingSoon title="How it works" />} />
           <Route path="/login" element={<ComingSoon title="Login" />} />
@@ -52,5 +71,6 @@ export default function App() {
       </main>
       <Footer />
     </div>
+    </AuthProvider>
   );
 }
