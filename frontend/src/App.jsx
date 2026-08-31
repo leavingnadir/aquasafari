@@ -5,6 +5,11 @@ import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 
+
+import ProcessPayment from "./pages/payment/ProcessPayment.jsx";
+import PaymentHistory from "./pages/payment/PaymentHistory.jsx";
+import PaymentRecords from "./pages/payment/PaymentRecords.jsx";
+
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col">
@@ -12,6 +17,10 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+
+          <Route path="/payment/checkout" element={<ProcessPayment />} />
+          <Route path="/payment/history" element={<PaymentHistory />} />
+          <Route path="/payment/records" element={<PaymentRecords />} />
 
           {/* Placeholder routes — replace each with the owning member's page.
               e.g. teammates working on boat/booking/feedback/payment/trip/usernadmin
