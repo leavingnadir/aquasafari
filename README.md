@@ -86,50 +86,6 @@ Click **Generate → Download ZIP**, then unzip it into the `backend/` folder of
 
 Every team member installs **Microsoft SQL Server** and **SQL Server Management Studio (SSMS)** on their own laptop and runs the database **locally** — `localhost` is sufficient for development, coursework, and the viva demo.
 
-1. **Install SQL Server (Developer or Express edition)** and **SSMS** on your machine (see the step-by-step setup guide `SSMS_Setup_Guide.html` in this repo for the full install + configuration walkthrough).
-2. In SSMS, connect to your local instance (Server name is usually `localhost` or `localhost\SQLEXPRESS`, Authentication = Windows Authentication).
-3. Create the project database:
-```sql
-CREATE DATABASE AquaSafariDB;
-```
-4. In `backend/pom.xml`, make sure the SQL Server driver dependency is present:
-```xml
-<dependency>
-    <groupId>com.microsoft.sqlserver</groupId>
-    <artifactId>mssql-jdbc</artifactId>
-    <scope>runtime</scope>
-</dependency>
-```
-5. Update `backend/src/main/resources/application.properties` (this file is git-ignored — see `database/application-example.properties` for the template):
-```properties
-spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=AquaSafariDB;encrypt=true;trustServerCertificate=true
-spring.datasource.username=<your_local_sql_username>
-spring.datasource.password=<your_local_sql_password>
-spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.SQLServerDialect
-```
-
-> With `ddl-auto=update`, Hibernate creates/updates tables automatically from your `@Entity` classes the first time you run the app — nobody writes or shares manual `CREATE TABLE` scripts. Since each member runs their **own local database**, everyone should pull the latest entity classes from `dev` before running, so table structures stay consistent across the team.
-
-6. Run your Spring Boot app once — Hibernate will create the tables in your local `AquaSafariDB`. Open SSMS to confirm the tables appear under **Databases → AquaSafariDB → Tables**.
-
-> Never commit real SQL Server credentials to GitHub. Keep `application.properties` in `.gitignore` and only commit the placeholder `database/application-example.properties` template.
-
-### Keeping schemas consistent across the team
-
-Since each member's database is local and separate:
-- Always pull the latest code from `main` before running your app, so your local tables match everyone else's entity definitions.
-- If you change an `@Entity` (add/remove a field), let the team know so they pull and re-run to update their local schema too.
-- Local test data does **not** need to match between members during individual development — only the table structure does.
-- Ahead of integration testing / the final demo, the team should agree on one member's laptop (or a temporary shared connection) to run the combined system so all modules are tested against the same live data.
-
-See [`database/`](./database) for the connection-string template and optional demo seed data, and see `SSMS_Setup_Guide.html` for the full installation and dummy-data walkthrough.
-
----
-
 ## 📁 `database/` folder
 
 This folder does **not** hold the schema — Hibernate generates tables automatically from the JPA entity classes, directly in your local SQL Server database. It holds reference files only:
