@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { searchTrips, bookTrip } from "../../api/bookingApi";
 import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
+import { Search, Calendar, Compass, ShieldAlert, CheckCircle2, Loader2, Users } from "lucide-react";
 
 const statusStyles = {
-  ok: "text-teal-800",
-  full: "text-rose-700",
+  ok: "text-emerald-400",
+  full: "text-rose-400",
 };
 
 export default function SearchTrips() {
@@ -64,12 +65,17 @@ export default function SearchTrips() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <header className="mb-6 border-b border-teal-900/10 pb-4">
-        <h1 className="text-3xl font-semibold tracking-tight text-teal-950">
-          Find a safari trip
-        </h1>
-        <p className="mt-1 text-teal-800/80">
+    <div className="mx-auto max-w-4xl px-4 pt-24 pb-12 font-body text-content-primary">
+      <header className="mb-8 border-b border-surface-800 pb-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-surface-800 bg-surface text-brand-500">
+            <Compass size={20} />
+          </div>
+          <h1 className="font-display text-3xl font-normal tracking-tight text-content-primary">
+            Find a safari trip
+          </h1>
+        </div>
+        <p className="mt-2 text-sm text-content-secondary">
           Search by route or date, then reserve seats — availability updates live.
         </p>
       </header>
@@ -80,65 +86,84 @@ export default function SearchTrips() {
 
       <form
         onSubmit={runSearch}
-        className="mb-8 flex flex-col gap-3 rounded-lg border border-teal-900/10 bg-white p-4 shadow-sm sm:flex-row sm:items-end"
+        className="mb-8 flex flex-col gap-4 rounded-[2.5rem] border border-surface-800 bg-surface-900 p-6 shadow-xl sm:flex-row sm:items-end"
       >
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-medium text-teal-950">Route</label>
-          <input
-            value={route}
-            onChange={(e) => setRoute(e.target.value)}
-            placeholder="e.g. Mangrove Lagoon"
-            className="w-full rounded-md border border-teal-900/20 px-3 py-2 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/30"
-          />
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-content-secondary">Route</label>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-content-muted" size={16} />
+            <input
+              value={route}
+              onChange={(e) => setRoute(e.target.value)}
+              placeholder="e.g. Mangrove Lagoon"
+              className="w-full rounded-2xl border border-surface-800 bg-surface py-3 pl-11 pr-4 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
+            />
+          </div>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-teal-950">Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-md border border-teal-900/20 px-3 py-2 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/30"
-          />
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-content-secondary">Date</label>
+          <div className="relative">
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-content-muted" size={16} />
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full rounded-2xl border border-surface-800 bg-surface py-3 pl-11 pr-4 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
+            />
+          </div>
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-teal-800 px-5 py-2 font-medium text-white transition hover:bg-teal-900 disabled:opacity-60"
+          className="flex items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 disabled:opacity-60"
         >
-          {loading ? "Searching…" : "Search trips"}
+          {loading && <Loader2 size={14} className="animate-spin" />}
+          <span>{loading ? "Searching…" : "Search trips"}</span>
         </button>
       </form>
 
       {error && (
-        <div className="mb-6 rounded-md border border-rose-300 bg-rose-50 px-4 py-3 text-rose-800">
-          {error}
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-rose-400">
+          <ShieldAlert size={18} className="shrink-0" />
+          <span className="text-sm font-medium">{error}</span>
         </div>
       )}
 
       {confirmation && (
-        <div className="mb-6 rounded-md border border-teal-300 bg-teal-50 px-4 py-3 text-teal-900">
-          Reserved. Booking <span className="font-semibold">#{confirmation.bookingId}</span> is{" "}
-          <span className="font-semibold">{confirmation.bookingStatus}</span> — complete payment
-          before <span className="font-semibold">
-            {new Date(confirmation.reservationExpiresAt).toLocaleTimeString()}
-          </span>{" "}
-          or the seats are released back to the pool.
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-emerald-300">
+          <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-400" />
+          <div className="text-sm">
+            Reserved. Booking <span className="font-semibold text-content-primary">#{confirmation.bookingId}</span> is{" "}
+            <span className="font-semibold text-content-primary">{confirmation.bookingStatus}</span> — complete payment
+            before{" "}
+            <span className="font-semibold text-content-primary">
+              {new Date(confirmation.reservationExpiresAt).toLocaleTimeString()}
+            </span>{" "}
+            or the seats are released back to the pool.
+          </div>
         </div>
       )}
 
       {trips === null && !loading && (
-        <p className="rounded-md border border-dashed border-teal-900/20 px-4 py-10 text-center text-teal-800/70">
-          Search above to see available safari trips.
-        </p>
+        <div className="rounded-[2.5rem] border border-dashed border-surface-800 bg-surface-900 px-6 py-16 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-surface-800 bg-surface text-content-muted">
+            <Search size={20} />
+          </div>
+          <p className="text-sm font-medium text-content-primary">Search above to see available safari trips.</p>
+        </div>
       )}
 
       {trips?.length === 0 && (
-        <p className="rounded-md border border-dashed border-teal-900/20 px-4 py-10 text-center text-teal-800/70">
-          No trips match that search. Try a different route or date.
-        </p>
+        <div className="rounded-[2.5rem] border border-dashed border-surface-800 bg-surface-900 px-6 py-16 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-surface-800 bg-surface text-content-muted">
+            <Compass size={20} />
+          </div>
+          <p className="text-sm font-medium text-content-primary">No trips match that search.</p>
+          <p className="mt-1 text-xs text-content-secondary">Try a different route or date.</p>
+        </div>
       )}
 
-      <ul className="space-y-3">
+      <ul className="space-y-4">
         {trips?.map((trip) => {
           const isFull = trip.seatsAvailable <= 0;
           const passengerCount = passengerCounts[trip.tripId] ?? 1;
@@ -147,22 +172,25 @@ export default function SearchTrips() {
           return (
             <li
               key={trip.tripId}
-              className="rounded-lg border border-teal-900/10 bg-white p-4 shadow-sm"
+              className="rounded-[2.5rem] border border-surface-800 bg-surface-900 p-6 shadow-xl transition-colors hover:border-surface-700"
             >
-              <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-teal-950">{trip.route}</h2>
-                  <p className="text-sm text-teal-800/80">
+                  <h2 className="font-display text-xl font-normal text-content-primary">{trip.route}</h2>
+                  <p className="mt-1 text-xs text-content-secondary">
                     {trip.tripDate} · {trip.departureTime} · {trip.durationMinutes} min
                   </p>
-                  <p className={`mt-1 text-sm font-medium ${isFull ? statusStyles.full : statusStyles.ok}`}>
+                  <p className={`mt-2 text-xs font-semibold uppercase tracking-wider ${isFull ? statusStyles.full : statusStyles.ok}`}>
                     {isFull ? "Fully booked" : `${trip.seatsAvailable} of ${trip.boatCapacity} seats available`}
                   </p>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm text-teal-900">Passengers</label>
+                <div className="flex flex-col items-end gap-3">
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary">
+                      <Users size={14} />
+                      <span>Passengers</span>
+                    </label>
                     <input
                       type="number"
                       min={1}
@@ -172,18 +200,19 @@ export default function SearchTrips() {
                       onChange={(e) =>
                         setPassengerCounts((prev) => ({ ...prev, [trip.tripId]: e.target.value }))
                       }
-                      className="w-16 rounded-md border border-teal-900/20 px-2 py-1 text-right disabled:bg-teal-900/5"
+                      className="w-16 rounded-xl border border-surface-800 bg-surface px-3 py-1.5 text-right text-sm font-mono text-content-primary outline-none focus:border-brand-500 disabled:opacity-40"
                     />
                   </div>
-                  <p className="text-sm text-teal-800/80">
-                    Est. total: <span className="font-semibold text-teal-950">Rs {total}</span>
+                  <p className="text-xs text-content-secondary">
+                    Est. total: <span className="font-mono font-semibold text-content-primary">Rs {total}</span>
                   </p>
                   <button
                     onClick={() => handleBook(trip)}
                     disabled={isFull || bookingTripId === trip.tripId}
-                    className="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-full bg-brand-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {bookingTripId === trip.tripId ? "Reserving…" : "Reserve seats"}
+                    {bookingTripId === trip.tripId && <Loader2 size={14} className="animate-spin" />}
+                    <span>{bookingTripId === trip.tripId ? "Reserving…" : "Reserve seats"}</span>
                   </button>
                 </div>
               </div>

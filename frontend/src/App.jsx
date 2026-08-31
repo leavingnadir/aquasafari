@@ -8,6 +8,10 @@ import ComingSoon from "./pages/ComingSoon.jsx";
 // Boat module
 import BoatManagement from "./pages/boat/BoatManagement.jsx";
 
+// Booking module
+import SearchTrips from "./pages/booking/SearchTrips.jsx";
+import MyBookings from "./pages/booking/MyBookings.jsx";
+
 //payment module
 import ProcessPayment from "./pages/payment/ProcessPayment.jsx";
 import PaymentHistory from "./pages/payment/PaymentHistory.jsx";
@@ -24,13 +28,15 @@ export default function App() {
           {/* Boat module */}
           <Route path="/boat/manage" element={<BoatManagement />} />
 
+           {/* Booking module */}
+          <Route path="/search" element={<SearchTrips />} />
+          <Route path="/booking/my-bookings" element={<MyBookings />} />
+
           {/* Payment module */}
           <Route path="/payment/checkout" element={<ProcessPayment />} />
           <Route path="/payment/history" element={<PaymentHistory />} />
           <Route path="/payment/records" element={<PaymentRecords />} />
-
           
-          <Route path="/search" element={<ComingSoon title="Boat search" />} />
           <Route path="/destinations" element={<ComingSoon title="Destinations" />} />
           <Route path="/how-it-works" element={<ComingSoon title="How it works" />} />
           <Route path="/login" element={<ComingSoon title="Login" />} />

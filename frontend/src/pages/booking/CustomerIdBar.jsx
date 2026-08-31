@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { UserCheck, ShieldAlert } from "lucide-react";
 
 /**
  * Temporary stand-in for "the logged-in customer" until the User & Admin
@@ -21,23 +22,31 @@ export default function CustomerIdBar({ customerId, onChange }) {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-      <span className="font-medium">Testing as customer ID:</span>
-      <input
-        className="w-20 rounded border border-amber-300 bg-white px-2 py-1"
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        placeholder="e.g. 1"
-      />
-      <button
-        onClick={save}
-        className="rounded bg-amber-600 px-3 py-1 font-medium text-white hover:bg-amber-700"
-      >
-        Set
-      </button>
-      <span className="text-amber-700">
-        (stand-in until the login module provides a real session)
-      </span>
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-[2.5rem] border border-surface-800 bg-surface-900 px-6 py-4 shadow-xl font-body text-content-primary">
+      <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-surface-800 bg-surface text-brand-500">
+          <UserCheck size={16} />
+        </div>
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wider text-content-secondary">Testing as customer ID</span>
+          <p className="text-xs text-content-muted">(stand-in until login module provides a session)</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          className="w-24 rounded-xl border border-surface-800 bg-surface px-3 py-1.5 text-center text-sm font-mono text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="e.g. 1"
+        />
+        <button
+          onClick={save}
+          className="rounded-full bg-brand-500 px-5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white shadow-md shadow-brand-500/20 transition-all hover:bg-brand-600"
+        >
+          Set
+        </button>
+      </div>
     </div>
   );
 }
