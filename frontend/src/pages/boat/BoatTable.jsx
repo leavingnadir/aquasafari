@@ -1,11 +1,16 @@
+import React from "react";
 import { StatusBadge, ConditionBadge } from "./BoatBadges";
+import { Anchor, Edit2, Trash2 } from "lucide-react";
 
 export default function BoatTable({ boats, onEdit, onDelete }) {
   if (boats.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-stone-300 bg-white px-6 py-16 text-center">
-        <p className="text-sm font-medium text-slate-700">No boats in the fleet yet</p>
-        <p className="mt-1 text-sm text-stone-500">
+      <div className="rounded-[2.5rem] border border-dashed border-surface-800 bg-surface-900 px-6 py-16 text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-surface-800 bg-surface text-content-muted">
+          <Anchor size={20} />
+        </div>
+        <p className="text-sm font-medium text-content-primary">No boats in the fleet yet</p>
+        <p className="mt-1 text-xs text-content-secondary">
           Add your first boat to make it available for trip scheduling.
         </p>
       </div>
@@ -13,66 +18,72 @@ export default function BoatTable({ boats, onEdit, onDelete }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-stone-200 bg-white">
-      <table className="min-w-full divide-y divide-stone-200 text-sm">
-        <thead className="bg-stone-50">
-          <tr>
-            <Th>Boat ID</Th>
-            <Th>Name</Th>
-            <Th>Type</Th>
-            <Th>Capacity</Th>
-            <Th>Engine</Th>
-            <Th>Condition</Th>
-            <Th>Status</Th>
-            <Th>Operator</Th>
-            <Th className="text-right">Actions</Th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-stone-100">
-          {boats.map((boat) => (
-            <tr key={boat.id} className="hover:bg-stone-50">
-              <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-700">
-                {boat.boatId}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-800">
-                {boat.name}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-stone-600">
-                {boat.boatType || "—"}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-stone-600">
-                {boat.passengerCapacity}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-stone-600">
-                {boat.engineType || "—"}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3">
-                <ConditionBadge value={boat.condition} />
-              </td>
-              <td className="whitespace-nowrap px-4 py-3">
-                <StatusBadge value={boat.status} />
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-stone-600">
-                {boat.boatOperatorId ? `#${boat.boatOperatorId}` : "Unassigned"}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-right">
-                <button
-                  onClick={() => onEdit(boat)}
-                  className="mr-3 text-sm font-medium text-teal-800 hover:text-teal-900"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(boat)}
-                  className="text-sm font-medium text-red-600 hover:text-red-700"
-                >
-                  Delete
-                </button>
-              </td>
+    <div className="overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-xl">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-surface-800 text-sm text-content-primary">
+          <thead className="bg-surface/50">
+            <tr>
+              <Th>Boat ID</Th>
+              <Th>Name</Th>
+              <Th>Type</Th>
+              <Th>Capacity</Th>
+              <Th>Engine</Th>
+              <Th>Condition</Th>
+              <Th>Status</Th>
+              <Th>Operator</Th>
+              <Th className="text-right">Actions</Th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-surface-800/60">
+            {boats.map((boat) => (
+              <tr key={boat.id} className="transition-colors hover:bg-surface-800/40">
+                <td className="whitespace-nowrap px-6 py-4 font-mono text-xs text-content-secondary">
+                  {boat.boatId}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 font-display font-medium text-content-primary">
+                  {boat.name}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-content-secondary">
+                  {boat.boatType || "—"}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-content-secondary">
+                  {boat.passengerCapacity}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-content-secondary">
+                  {boat.engineType || "—"}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <ConditionBadge value={boat.condition} />
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <StatusBadge value={boat.status} />
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-content-secondary">
+                  {boat.boatOperatorId ? `#${boat.boatOperatorId}` : <span className="text-content-muted italic">Unassigned</span>}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => onEdit(boat)}
+                      className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-content-secondary transition hover:bg-surface-800 hover:text-content-primary"
+                    >
+                      <Edit2 size={13} />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => onDelete(boat)}
+                      className="inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
+                    >
+                      <Trash2 size={13} />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -80,7 +91,7 @@ export default function BoatTable({ boats, onEdit, onDelete }) {
 function Th({ children, className = "" }) {
   return (
     <th
-      className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-stone-500 ${className}`}
+      className={`px-6 py-4 text-left text-[10px] font-bold uppercase tracking-wider text-content-muted ${className}`}
     >
       {children}
     </th>

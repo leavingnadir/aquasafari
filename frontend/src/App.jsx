@@ -5,7 +5,10 @@ import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 
+// Boat module
+import BoatManagement from "./pages/boat/BoatManagement.jsx";
 
+//payment module
 import ProcessPayment from "./pages/payment/ProcessPayment.jsx";
 import PaymentHistory from "./pages/payment/PaymentHistory.jsx";
 import PaymentRecords from "./pages/payment/PaymentRecords.jsx";
@@ -18,13 +21,15 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
 
+          {/* Boat module */}
+          <Route path="/boat/manage" element={<BoatManagement />} />
+
+          {/* Payment module */}
           <Route path="/payment/checkout" element={<ProcessPayment />} />
           <Route path="/payment/history" element={<PaymentHistory />} />
           <Route path="/payment/records" element={<PaymentRecords />} />
 
-          {/* Placeholder routes — replace each with the owning member's page.
-              e.g. teammates working on boat/booking/feedback/payment/trip/usernadmin
-              modules can swap these for their real page components. */}
+          
           <Route path="/search" element={<ComingSoon title="Boat search" />} />
           <Route path="/destinations" element={<ComingSoon title="Destinations" />} />
           <Route path="/how-it-works" element={<ComingSoon title="How it works" />} />

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { X, Anchor, ShieldAlert, Loader2 } from "lucide-react";
 
 const CONDITIONS = ["GOOD", "NEEDS_MAINTENANCE", "UNDER_REPAIR", "OUT_OF_SERVICE"];
 const STATUSES = ["AVAILABLE", "ASSIGNED", "MAINTENANCE", "INACTIVE"];
@@ -22,7 +23,6 @@ const emptyForm = {
  * per the use case's "Admin assigns an active Boat Operator to the boat" step. If that
  * endpoint isn't available yet (teammate's module still in progress), it falls back to a
  * plain numeric "Operator ID" field so this page still works standalone.
- * ADJUST THE URL BELOW once the usernadmin module confirms its real endpoint.
  */
 export default function BoatFormModal({ boat, onClose, onSubmit }) {
   const isEditing = Boolean(boat);
@@ -87,33 +87,42 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-800">
-            {isEditing ? "Edit boat details" : "Add a boat"}
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+      <div className="w-full max-w-lg rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-2xl font-body text-content-primary overflow-hidden">
+        
+        {/* Modal Header */}
+        <div className="flex items-center justify-between border-b border-surface-800 bg-surface/50 px-8 py-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-surface-800 bg-surface text-brand-500">
+              <Anchor size={18} />
+            </div>
+            <h2 className="font-display text-xl font-normal text-content-primary">
+              {isEditing ? "Edit boat details" : "Add a boat"}
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-stone-400 hover:text-stone-600"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-content-secondary transition hover:bg-surface-800 hover:text-content-primary"
             aria-label="Close"
           >
-            ✕
+            <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="max-h-[75vh] overflow-y-auto px-6 py-5">
+        {/* Modal Body */}
+        <form onSubmit={handleSubmit} className="max-h-[70vh] overflow-y-auto px-8 py-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
+            
             <Field label="Boat ID" error={errors.boatId} span={2}>
               <input
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm font-mono focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm font-mono text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15 disabled:opacity-50"
                 value={form.boatId}
                 disabled={isEditing}
                 onChange={(e) => update("boatId", e.target.value)}
                 placeholder="e.g. AS-B-014"
               />
               {isEditing && (
-                <p className="mt-1 text-xs text-stone-500">
+                <p className="mt-1.5 text-xs text-content-muted">
                   Boat ID can't be changed after creation.
                 </p>
               )}
@@ -121,7 +130,7 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
 
             <Field label="Boat name" error={errors.name} span={2}>
               <input
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                 value={form.name}
                 onChange={(e) => update("name", e.target.value)}
                 placeholder="e.g. Ocean Explorer"
@@ -130,7 +139,7 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
 
             <Field label="Boat type">
               <input
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                 value={form.boatType}
                 onChange={(e) => update("boatType", e.target.value)}
                 placeholder="e.g. Speedboat"
@@ -139,7 +148,7 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
 
             <Field label="Engine type">
               <input
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                 value={form.engineType}
                 onChange={(e) => update("engineType", e.target.value)}
                 placeholder="e.g. Twin Outboard 250HP"
@@ -150,7 +159,7 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
               <input
                 type="number"
                 min="1"
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                 value={form.passengerCapacity}
                 onChange={(e) => update("passengerCapacity", e.target.value)}
               />
@@ -158,26 +167,26 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
 
             <Field label="Condition">
               <select
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                 value={form.condition}
                 onChange={(e) => update("condition", e.target.value)}
               >
                 {CONDITIONS.map((c) => (
-                  <option key={c} value={c}>
+                  <option key={c} value={c} className="bg-surface-900 text-content-primary">
                     {c.replaceAll("_", " ").toLowerCase()}
                   </option>
                 ))}
               </select>
             </Field>
 
-            <Field label="Status">
+            <Field label="Status" span={2}>
               <select
-                className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                 value={form.status}
                 onChange={(e) => update("status", e.target.value)}
               >
                 {STATUSES.map((s) => (
-                  <option key={s} value={s}>
+                  <option key={s} value={s} className="bg-surface-900 text-content-primary">
                     {s.toLowerCase()}
                   </option>
                 ))}
@@ -187,13 +196,13 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
             <Field label="Assigned boat operator" span={2}>
               {operators && operators.length > 0 ? (
                 <select
-                  className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                  className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                   value={form.boatOperatorId}
                   onChange={(e) => update("boatOperatorId", e.target.value)}
                 >
-                  <option value="">Unassigned</option>
+                  <option value="" className="bg-surface-900 text-content-primary">Unassigned</option>
                   {operators.map((op) => (
-                    <option key={op.id} value={op.id}>
+                    <option key={op.id} value={op.id} className="bg-surface-900 text-content-primary">
                       {op.name ?? `Operator #${op.id}`}
                     </option>
                   ))}
@@ -202,34 +211,35 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
                 <>
                   <input
                     type="number"
-                    className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-teal-700 focus:outline-none focus:ring-1 focus:ring-teal-700"
+                    className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
                     value={form.boatOperatorId}
                     onChange={(e) => update("boatOperatorId", e.target.value)}
                     placeholder="Operator user ID (optional)"
                   />
-                  <p className="mt-1 text-xs text-stone-500">
-                    Operator directory not connected yet — enter the operator's user ID
-                    manually until the User &amp; Admin module's endpoint is available.
+                  <p className="mt-1.5 text-xs text-content-muted">
+                    Operator directory not connected yet — enter the operator's user ID manually until the User &amp; Admin module's endpoint is available.
                   </p>
                 </>
               )}
             </Field>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3 border-t border-stone-200 pt-4">
+          {/* Modal Footer */}
+          <div className="mt-8 flex items-center justify-end gap-3 border-t border-surface-800 pt-5">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-stone-300 px-4 py-2 text-sm font-medium text-stone-600 hover:bg-stone-50"
+              className="rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-content-secondary transition hover:bg-surface-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white hover:bg-teal-900 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-full bg-brand-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 disabled:opacity-60"
             >
-              {submitting ? "Saving…" : isEditing ? "Save changes" : "Add boat"}
+              {submitting && <Loader2 size={14} className="animate-spin" />}
+              <span>{submitting ? "Saving…" : isEditing ? "Save changes" : "Add boat"}</span>
             </button>
           </div>
         </form>
@@ -241,9 +251,14 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
 function Field({ label, error, span = 1, children }) {
   return (
     <div className={span === 2 ? "col-span-2" : "col-span-1"}>
-      <label className="mb-1 block text-sm font-medium text-slate-700">{label}</label>
+      <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-content-secondary">{label}</label>
       {children}
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && (
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs text-rose-400">
+          <ShieldAlert size={12} className="shrink-0" />
+          <span>{error}</span>
+        </p>
+      )}
     </div>
   );
 }
