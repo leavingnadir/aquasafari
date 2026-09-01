@@ -4,7 +4,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("ADMIN")
+@DiscriminatorValue("ADMINISTRATOR") // Matches the SQL seed script value 'ADMINISTRATOR'
 public class Administrator extends User {
 
     public Administrator() {

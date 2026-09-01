@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
  * @ManyToOne(BoatOperator) relation if the team prefers.
  */
 @Entity
-@Table(name = "boats")
+@Table(name = "BOAT")
 public class Boat {
 
     @Id
@@ -33,37 +33,40 @@ public class Boat {
      * Registration") checks for uniqueness — it is deliberately separate from the internal
      * database primary key above.
      */
-    @Column(name = "boat_id", nullable = false, unique = true, length = 50)
+    @Column(name = "BoatCode", nullable = false, unique = true, length = 50)
     private String boatId;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "Name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "boat_type", length = 50)
+    @Column(name = "BoatType", length = 50, nullable = false)
     private String boatType;
 
-    @Column(name = "passenger_capacity", nullable = false)
+    // Actual column is "Capacity" (from the original EER-based script), not
+    // "passenger_capacity" — mapped explicitly here rather than renaming the
+    // DB column, since Capacity already holds real data.
+    @Column(name = "Capacity", nullable = false)
     private Integer passengerCapacity;
 
-    @Column(name = "engine_type", length = 50)
+    @Column(name = "EngineType", length = 50)
     private String engineType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "Condition", nullable = false, length = 20)
     private BoatCondition condition = BoatCondition.GOOD;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "Status", nullable = false, length = 20)
     private BoatStatus status = BoatStatus.AVAILABLE;
 
     /** FK reference to the assigned BOAT_OPERATOR's User.id (owned by the usernadmin module). */
-    @Column(name = "boat_operator_id")
+    @Column(name = "BoatOperatorId")
     private Long boatOperatorId;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "CreatedAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "UpdatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
     public Boat() {
