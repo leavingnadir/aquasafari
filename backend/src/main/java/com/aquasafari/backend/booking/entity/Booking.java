@@ -9,40 +9,32 @@ import java.time.LocalDateTime;
  *
  * EER fields: BookingID (PK), BookingDate, PassengerCount, BookingStatus
  * EER relationships: CUSTOMER (1) --MAKES--> (N) BOOKING
- *                     TRIP (1) --BOOKS--> (N) BOOKING
- *                     BOOKING (1) --HAS PAYMENT--> (N) PAYMENT (owned by the Payment module)
- *
- * NOTE ON FOREIGN KEYS: customerId and tripId are stored as plain columns
- * (not @ManyToOne to the Customer/Trip entities) on purpose. Those entities
- * belong to teammates' modules (usernadmin, trip) that are being built in
- * parallel on the same shared branch. Storing the raw ID avoids compile-time
- * coupling to classes that may not exist yet or may still be renamed.
- * Once both entities are stable, this can be upgraded to a real
- * @ManyToOne relationship if the team agrees on it.
+ *                   TRIP (1) --BOOKS--> (N) BOOKING
+ *                   BOOKING (1) --HAS PAYMENT--> (N) PAYMENT (owned by the Payment module)
  */
 @Entity
-@Table(name = "booking")
+@Table(name = "BOOKING") // Matches uppercase table name in SQL Server
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "booking_id")
+    @Column(name = "BookingID") // Matches uppercase column name
     private Long bookingId;
 
-    @Column(name = "customer_id", nullable = false)
+    @Column(name = "CustomerID", nullable = false) // Matches uppercase column name
     private Long customerId;
 
-    @Column(name = "trip_id", nullable = false)
+    @Column(name = "TripID", nullable = false) // Matches uppercase column name
     private Long tripId;
 
-    @Column(name = "booking_date", nullable = false)
+    @Column(name = "BookingDate", nullable = false) // Matches uppercase column name
     private LocalDate bookingDate;
 
-    @Column(name = "passenger_count", nullable = false)
+    @Column(name = "PassengerCount", nullable = false) // Matches uppercase column name
     private Integer passengerCount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "booking_status", nullable = false, length = 20)
+    @Column(name = "BookingStatus", nullable = false, length = 30) // Matches uppercase column name
     private BookingStatus bookingStatus;
 
     /**
@@ -51,7 +43,7 @@ public class Booking {
      * to the general pool"). Holds the moment a PENDING reservation expires
      * if payment has not been completed by then.
      */
-    @Column(name = "reservation_expires_at")
+    @Column(name = "ReservationExpiresAt")
     private LocalDateTime reservationExpiresAt;
 
     public Booking() {
