@@ -21,7 +21,7 @@ import java.util.List;
  * auth manager can use this entity as-is, without a separate adapter class.
  */
 @Entity
-@Table(name = "USER")
+@Table(name = "[USER]")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class User implements UserDetails {

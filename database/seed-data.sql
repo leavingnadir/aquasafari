@@ -115,8 +115,6 @@ CREATE TABLE [BOOKING] (
     FOREIGN KEY (CustomerID) REFERENCES [USER](UserID)
 );
 GO
-<<<<<<< HEAD
-=======
 
 -- 7. PAYMENT TABLE
 CREATE TABLE [PAYMENT] (
@@ -132,49 +130,6 @@ CREATE TABLE [PAYMENT] (
 );
 GO
 
--- 8. FEEDBACK TABLE
-CREATE TABLE [FEEDBACK] (
-    FeedbackID INT IDENTITY(1,1) PRIMARY KEY,
-    BookingID INT NOT NULL,
-    CustomerID INT NOT NULL,
-    Rating INT CHECK (Rating BETWEEN 1 AND 5),
-    Comment VARCHAR(500),
-    FOREIGN KEY (BookingID) REFERENCES [BOOKING](BookingID),
-    FOREIGN KEY (CustomerID) REFERENCES [USER](UserID)
-);
-GO
-
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
->>>>>>> 60b59d72202545623503f0cac845f0b5088996a2
-
--- 7. PAYMENT TABLE
-CREATE TABLE [PAYMENT] (
-    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
-    BookingID INT NOT NULL,
-    AccountantID INT NULL,          -- Accountant who verifies the payment
-    Amount DECIMAL(10,2) NOT NULL,
-    PaymentDate DATETIME DEFAULT GETDATE(),
-    PaymentMethod VARCHAR(50) NOT NULL,
-    PaymentStatus VARCHAR(30) NOT NULL,
-    FOREIGN KEY (BookingID) REFERENCES [BOOKING](BookingID),
-    FOREIGN KEY (AccountantID) REFERENCES [USER](UserID)
-);
-GO
-
-<<<<<<< HEAD
 -- 8. FEEDBACK TABLE
 CREATE TABLE [FEEDBACK] (
     FeedbackID INT IDENTITY(1,1) PRIMARY KEY,
@@ -273,90 +228,6 @@ VALUES
     (5, 1, 'Rescheduling Inquiry', 'Can I change my trip date from 15th Sept to 18th Sept?');
 GO
 
-=======
-USE AquaSafariDB;
-GO
-
--- =========================================================================
--- 1. INSERT USERS (Administrators, Customers, Operators, Guides, Accountants)
--- =========================================================================
-INSERT INTO [USER] (Email, Phone, PasswordHash, FirstName, LastName, user_type, RegistrationDate)
-VALUES
-    ('admin@aquasafari.lk',     '0771234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Ama',     'Dissanayake', 'ADMINISTRATOR', NULL),
-    ('operator@aquasafari.lk',  '0772234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Nuwan',   'Fernando',    'BOAT_OPERATOR', NULL),
-    ('guide@aquasafari.lk',     '0773234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Sanduni', 'Perera',      'TOUR_GUIDE',    NULL),
-    ('accountant@aquasafari.lk','0774234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Ruwan',   'Jayasuriya',  'ACCOUNTANT',    NULL),
-    ('customer1@gmail.com',     '0775234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Kasun',   'Silva',       'CUSTOMER',      '2026-08-01'),
-    ('customer2@gmail.com',     '0776234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Nimali',  'Jayasinghe',  'CUSTOMER',      '2026-08-15');
-GO
-
--- =========================================================================
--- 2. INSERT BOATS
--- =========================================================================
-INSERT INTO [BOAT] (BoatType, Capacity, Condition)
-VALUES
-    ('Speedboat', 12, 'Excellent'),
-    ('Catamaran', 8, 'Good'),
-    ('Luxury Cruiser', 20, 'Excellent');
-GO
-
--- =========================================================================
--- 3. INSERT TRIPS (Linked to Boats, Operators [UserID 2], and Guides [UserID 3])
--- =========================================================================
-INSERT INTO [TRIP] (BoatID, OperatorID, GuideID, TripDate, DepartureTime, Duration, Route, Price)
-VALUES
-    (1, 2, 3, '2026-09-15', '08:30:00', '3 Hours', 'Coral Reef & Lagoon Tour', 5000.00),
-    (2, 2, 3, '2026-09-20', '14:00:00', '2 Hours', 'Mangrove River Safari', 3500.00),
-    (3, 2, 3, '2026-09-25', '07:00:00', '5 Hours', 'Deep Sea Whale Watching', 7500.00);
-GO
-
--- =========================================================================
--- 4. INSERT BOOKINGS (Made by Customers [UserID 5 and 6] for Trips)
--- =========================================================================
-INSERT INTO [BOOKING] (TripID, CustomerID, BookingDate, PassengerCount, BookingStatus)
-VALUES
-    (1, 5, '2026-09-02', 2, 'CONFIRMED'),
-    (2, 5, '2026-09-02', 3, 'PENDING'),
-    (3, 6, '2026-09-02', 4, 'CONFIRMED');
-GO
-
--- =========================================================================
--- 5. INSERT PAYMENTS (Verified by Accountant [UserID 4], tied to Bookings)
--- =========================================================================
-INSERT INTO [PAYMENT] (BookingID, AccountantID, Amount, PaymentDate, PaymentMethod, PaymentStatus)
-VALUES
-    (1, 4, 10000.00, GETDATE(), 'CREDIT_CARD', 'PAID'),
-    (2, NULL, 10500.00, GETDATE(), 'MOBILE_WALLET', 'PENDING'),
-    (3, 4, 30000.00, GETDATE(), 'BANK_TRANSFER', 'PAID');
-GO
-
--- =========================================================================
--- 6. INSERT FEEDBACK (Left by Customers for Bookings)
--- =========================================================================
-INSERT INTO [FEEDBACK] (BookingID, CustomerID, Rating, Comment)
-VALUES
-    (1, 5, 5, 'Amazing experience! The guide was very knowledgeable and the boat ride was super smooth.'),
-    (3, 6, 4, 'Breathtaking views of the whales, highly recommend!');
-GO
-
--- =========================================================================
--- 7. INSERT NOTIFICATIONS (Sent to Users)
--- =========================================================================
-INSERT INTO [NOTIFICATION] (UserID, Message, CreatedAt)
-VALUES
-    (5, 'Your booking for the Coral Reef & Lagoon Tour has been confirmed!', GETDATE()),
-    (6, 'Your payment for the Deep Sea Whale Watching trip has been verified.', GETDATE());
-GO
-
--- =========================================================================
--- 8. INSERT SUPPORT REQUESTS (Raised by Customers, Managed by Admin [UserID 1])
--- =========================================================================
-INSERT INTO [SUPPORT_REQUEST] (CustomerID, AdminID, Subject, Message)
-VALUES
-    (5, 1, 'Rescheduling Inquiry', 'Can I change my trip date from 15th Sept to 18th Sept?');
-GO
-
->>>>>>> 60b59d72202545623503f0cac845f0b5088996a2
 SELECT * FROM [USER];
 SELECT * FROM [BOAT];
 SELECT * FROM [TRIP];

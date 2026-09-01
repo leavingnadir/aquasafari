@@ -12,16 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Endpoints for the Booking Management module.
- *
- *   GET    /api/bookings/trips/search?route=&date=   -> Search Trips
- *   POST   /api/bookings                              -> Book Trip
- *   POST   /api/bookings/{id}/confirm                  -> called by Payment module after payment succeeds
- *   PUT    /api/bookings/{id}/cancel?customerId=       -> Cancel Booking
- *   GET    /api/bookings/customer/{customerId}         -> View Bookings
- *   GET    /api/bookings/{id}                          -> View a single booking
- */
 @RestController
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -31,6 +21,12 @@ public class BookingController {
 
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
+    }
+
+    // NEW: Get all bookings to view data in browser at /api/bookings
+    @GetMapping
+    public List<BookingResponseDTO> getAllBookings() {
+        return bookingService.getAllBookings();
     }
 
     @GetMapping("/trips/search")

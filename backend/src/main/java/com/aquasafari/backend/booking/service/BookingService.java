@@ -9,6 +9,9 @@ import java.util.List;
 
 public interface BookingService {
 
+    // NEW: Declaration for getting all bookings
+    List<BookingResponseDTO> getAllBookings();
+
     List<TripAvailabilityDTO> searchTrips(String route, LocalDate tripDate);
 
     TripAvailabilityDTO getTripAvailability(Long tripId);
@@ -21,9 +24,5 @@ public interface BookingService {
 
     BookingResponseDTO getBooking(Long bookingId);
 
-    /**
-     * Called once payment succeeds (integration point for the Payment
-     * module / UC-05). Flips a PENDING booking to CONFIRMED.
-     */
     BookingResponseDTO confirmBooking(Long bookingId);
 }

@@ -34,6 +34,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<BookingResponseDTO> getAllBookings() {
+        return bookingRepository.findAll()
+                .stream()
+                .map(BookingResponseDTO::fromEntity)
+                .toList();
+    }
+
+    @Override
     public List<TripAvailabilityDTO> searchTrips(String route, LocalDate tripDate) {
         return tripLookupService.searchTrips(route, tripDate);
     }

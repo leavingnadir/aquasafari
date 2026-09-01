@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
  *  - id, boatType, capacity, condition        -> straight from the EER diagram's BOAT entity
  *  - registrationCode, name, engineType,
  *    status, boatOperatorId                   -> added to satisfy the use-case scenario
- *                                                 ("Boat ID, Name, Passenger Capacity, Engine Type",
- *                                                 "assigns an active Boat Operator", "status indicators")
+ *                                                ("Boat ID, Name, Passenger Capacity, Engine Type",
+ *                                                "assigns an active Boat Operator", "status indicators")
  *
  * boatOperatorId is stored as a plain FK column (not a JPA @ManyToOne) rather than a relation
  * into the usernadmin module's User/BoatOperator entity. That entity belongs to a teammate's
@@ -25,6 +25,7 @@ public class Boat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "BoatID") // <-- Fixed: Maps to your database primary key column BoatID
     private Long id;
 
     /**

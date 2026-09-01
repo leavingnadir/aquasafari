@@ -13,36 +13,30 @@ import java.time.LocalDateTime;
  *                   BOOKING (1) --HAS PAYMENT--> (N) PAYMENT (owned by the Payment module)
  */
 @Entity
-@Table(name = "BOOKING") // Matches uppercase table name in SQL Server
+@Table(name = "BOOKING")
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "BookingID") // Matches uppercase column name
+    @Column(name = "BookingID")
     private Long bookingId;
 
-    @Column(name = "CustomerID", nullable = false) // Matches uppercase column name
+    @Column(name = "CustomerID", nullable = false)
     private Long customerId;
 
-    @Column(name = "TripID", nullable = false) // Matches uppercase column name
+    @Column(name = "TripID", nullable = false)
     private Long tripId;
 
-    @Column(name = "BookingDate", nullable = false) // Matches uppercase column name
+    @Column(name = "BookingDate", nullable = false)
     private LocalDate bookingDate;
 
-    @Column(name = "PassengerCount", nullable = false) // Matches uppercase column name
+    @Column(name = "PassengerCount", nullable = false)
     private Integer passengerCount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "BookingStatus", nullable = false, length = 30) // Matches uppercase column name
+    @Column(name = "BookingStatus", nullable = false, length = 30)
     private BookingStatus bookingStatus;
 
-    /**
-     * Added beyond the EER diagram to implement Extension 4a
-     * ("Session timeout prior to payment: Reserved seats are released back
-     * to the general pool"). Holds the moment a PENDING reservation expires
-     * if payment has not been completed by then.
-     */
     @Column(name = "ReservationExpiresAt")
     private LocalDateTime reservationExpiresAt;
 

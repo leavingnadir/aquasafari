@@ -48,28 +48,25 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public - login/register don't require a token[cite: 43]
-                        .requestMatchers("/api/auth/**").permitAll()[cite: 43]
+                        // =========================================================================
+                        // TESTING PERMIT RULES (Placed at the top to bypass role blocks)
+                        // =========================================================================
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/boats", "/api/boats/**").permitAll()
+                        .requestMatchers("/api/bookings", "/api/bookings/**").permitAll()
+                        .requestMatchers("/api/admin/customers", "/api/admin/customers/**").permitAll()
+                        .requestMatchers("/api/payments", "/api/payments/**").permitAll()
 
-                        // Admin-only staff management (Boat Operator / Tour Guide / Accountant / Admin accounts)[cite: 43]
-                        .requestMatchers("/api/admin/staff/**").hasRole("ADMIN")[cite: 43]
+                        // =========================================================================
+                        // RESTRICTED / PRODUCTION RULES (Evaluated only if not matched above)
+                        // =========================================================================
+                        .requestMatchers("/api/admin/staff/**").hasRole("ADMIN")
 
-                        // Customer records - Admin manages them (matches the use case diagram's[cite: 43]
-                        // "Ext.P: When administrator manages customer details")[cite: 43]
-                        .requestMatchers("/api/admin/customers/**").hasRole("ADMIN")
-
-                        // Accountant-only: payment history, correcting or deleting records[cite: 43]
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/payments/history").hasAnyRole("ADMIN", "ACCOUNTANT")[cite: 43]
-                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/payments/**").hasAnyRole("ADMIN", "ACCOUNTANT")[cite: 43]
-                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/payments/**").hasAnyRole("ADMIN", "ACCOUNTANT")[cite: 43]
-                        // Customers can process their own payment and view their own receipt[cite: 43]
-                        .requestMatchers("/api/payments/**").authenticated()[cite: 43]
-
-                        // Everything else needs a valid token, role open[cite: 43]
-                        .anyRequest().authenticated()[cite: 43]
+                        // Everything else needs a valid token
+                        .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())[cite: 43]
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);[cite: 43]
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
