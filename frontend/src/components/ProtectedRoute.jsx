@@ -12,12 +12,12 @@ import { useAuth } from "../context/AuthContext.jsx";
  * Omit `roles` to just require "logged in, any role".
  */
 export default function ProtectedRoute({ children, roles }) {
-  const { auth, loading } = useAuth();
+  const { auth, isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
   if (loading) return null; // avoid flashing a redirect while localStorage is read
 
-  if (!auth) {
+  if (!isAuthenticated || !auth) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

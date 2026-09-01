@@ -6,7 +6,8 @@ import { useAuth } from "../../context/AuthContext.jsx";
 
 // Where each role lands after logging in.
 const ROLE_HOME = {
-  ADMIN: "/admin/staff",
+  ADMIN: "/admin",
+  ADMINISTRATOR: "/admin",
   ACCOUNTANT: "/payment/history",
   BOAT_OPERATOR: "/boat/manage",
   TOUR_GUIDE: "/trip",
@@ -28,8 +29,11 @@ export default function Login() {
     setError("");
     try {
       const response = await login(form.email, form.password);
+      
+      // Updates AuthContext state and saves to localStorage via your custom AuthProvider
       setSession(response);
 
+      // Route the user based on their specific role mapping or fallback location
       const redirectTo = location.state?.from?.pathname || ROLE_HOME[response.role] || "/";
       navigate(redirectTo, { replace: true });
     } catch (err) {
@@ -40,7 +44,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center px-4 py-16 font-body text-content-primary">
+    <div className="flex min-h-[80vh] items-center justify-center pt-40 px-4 py-16 font-body text-content-primary bg-surface">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-surface-800 bg-surface-900 text-brand-500 shadow-xl">
@@ -55,7 +59,7 @@ export default function Login() {
         </div>
 
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-rose-400 shadow-lg">
+          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-rose-400 shadow-lg backdrop-blur-sm">
             <ShieldAlert size={18} className="shrink-0" />
             <span className="text-sm font-medium">{error}</span>
           </div>

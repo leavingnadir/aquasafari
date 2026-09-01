@@ -29,8 +29,12 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(STORAGE_KEY);
   }
 
+  // Convenience helpers for your components
+  const isAuthenticated = !!auth?.token;
+  const user = auth; // maps directly to your user details object
+
   return (
-    <AuthContext.Provider value={{ auth, loading, setSession, logout }}>
+    <AuthContext.Provider value={{ auth, user, isAuthenticated, loading, setSession, logout }}>
       {children}
     </AuthContext.Provider>
   );

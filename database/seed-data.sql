@@ -332,3 +332,21 @@ UPDATE dbo.[USER]
 SET user_type = 'ADMINISTRATOR' 
 WHERE user_type = 'ADMIN';
 GO
+
+UPDATE [USER]
+SET PasswordHash = 'password'
+WHERE Email = 'admin@aquasafari.lk';
+
+UPDATE [USER]
+SET PasswordHash = '123'
+WHERE Email = 'customer1@gmail.com';
+
+UPDATE [USER]
+SET PasswordHash = '123'
+WHERE Email = 'operator@aquasafari.lk';
+
+UPDATE [USER]
+SET PasswordHash = '123'
+WHERE Email = 'guide@aquasafari.lk';
+
+SELECT * FROM [USER];

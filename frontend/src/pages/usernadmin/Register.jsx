@@ -38,7 +38,7 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center px-4 py-16 font-body text-content-primary">
+    <div className="flex min-h-[80vh] items-center justify-center pt-40 px-4 py-16 font-body text-content-primary">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-surface-800 bg-surface-900 text-brand-500 shadow-xl">

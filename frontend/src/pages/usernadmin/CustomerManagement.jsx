@@ -25,7 +25,9 @@ export default function CustomerManagement() {
       const data = await getAllCustomers();
       setCustomers(data);
     } catch (err) {
-      setError("Failed to load customers. Is the backend running on :8080?");
+      console.error("FULL API ERROR:", err);
+      const serverMessage = err?.response?.data?.message || err?.message || "Is the backend running on :8080?";
+      setError(`Failed to load customers: ${serverMessage}`);
     } finally {
       setLoading(false);
     }
@@ -45,6 +47,7 @@ export default function CustomerManagement() {
         : await getAllCustomers();
       setCustomers(data);
     } catch (err) {
+      console.error("SEARCH ERROR:", err);
       setError("Search failed. Please try again.");
     } finally {
       setLoading(false);
@@ -72,6 +75,7 @@ export default function CustomerManagement() {
       setEditingCustomer(null);
       await loadCustomers();
     } catch (err) {
+      console.error("SAVE ERROR:", err);
       const message =
         err?.response?.data?.message || "Could not save customer. Please check the details.";
       setError(message);
@@ -87,6 +91,7 @@ export default function CustomerManagement() {
       await deleteCustomer(customer.userId);
       await loadCustomers();
     } catch (err) {
+      console.error("DELETE ERROR:", err);
       setError("Failed to delete customer.");
     }
   };
