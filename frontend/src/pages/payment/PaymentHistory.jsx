@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getPaymentHistory } from "../../api/paymentApi";
 import PaymentReceipt from "./PaymentReceipt";
 import { FileText, ArrowUpDown, Filter, ShieldAlert, CheckCircle2 } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const STATUS_CONFIG = {
   PAID: { dot: "bg-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
@@ -30,6 +31,8 @@ function formatDate(dateString) {
  * payment history and by Customer to view their past transactions.
  */
 export default function PaymentHistory() {
+  usePageTitle("Payment History");
+
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

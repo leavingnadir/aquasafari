@@ -1,6 +1,9 @@
 import React from "react";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function About() {
+  usePageTitle("About Us");
+
   return (
     // pt-24 pushes the content down so it doesn't hide behind a fixed/sticky navbar
     <div className="bg-surface min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 font-body">

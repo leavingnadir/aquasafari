@@ -3,6 +3,7 @@ import { boatApi } from "../../api/boatApi";
 import BoatTable from "./BoatTable";
 import BoatFormModal from "./BoatFormModal";
 import { Anchor, Search, Plus, AlertCircle, ShieldAlert, CheckCircle2 } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /**
  * Fleet Management page — implements the Boat Management use case:
@@ -10,6 +11,8 @@ import { Anchor, Search, Plus, AlertCircle, ShieldAlert, CheckCircle2 } from "lu
  * and filter down to available boats only.
  */
 export default function BoatManagement() {
+  usePageTitle("Boat Management");
+  
   const [boats, setBoats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);

@@ -3,8 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 import { Compass, Mail, Lock, User, Phone, Loader2, ShieldAlert } from "lucide-react";
 import { register } from "../../api/authApi.js";
 import { useAuth } from "../../context/AuthContext.jsx";
+import usePageTitle from "../../hooks/usePageTitle";
 
 export default function Register() {
+  usePageTitle("Register Form");
+
   const { setSession } = useAuth();
   const navigate = useNavigate();
 

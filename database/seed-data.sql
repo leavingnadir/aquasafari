@@ -365,3 +365,12 @@ GO
 SELECT * FROM [BOAT];
 
 --- =============================================
+
+USE AquaSafariDB;
+GO
+
+ALTER TABLE BOOKING ADD
+    ReservationExpiresAt DATETIME2 NULL;
+GO
+SELECT * FROM [BOOKING];
+--- =============================================

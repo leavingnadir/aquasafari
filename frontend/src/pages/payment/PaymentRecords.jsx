@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getPaymentHistory, updatePayment, deletePaymentRecord } from "../../api/paymentApi";
 import { ShieldCheck, Edit3, Trash2, AlertCircle, ShieldAlert, X, Check } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const METHODS = ["CARD", "BANK_TRANSFER", "MOBILE_WALLET"];
 const STATUSES = ["PENDING", "PAID", "DECLINED", "REFUNDED"];
@@ -24,6 +25,8 @@ function formatCurrency(amount) {
  * Read (history).
  */
 export default function PaymentRecords() {
+  usePageTitle("Payments Records");
+
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

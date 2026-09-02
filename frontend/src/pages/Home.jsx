@@ -18,6 +18,7 @@ import {
 
 import { Link } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
+import usePageTitle from "../hooks/usePageTitle";
 
 import {
   DESTINATIONS,
@@ -27,6 +28,8 @@ import {
 } from "../data/homeContent.js";
 
 export default function Home() {
+  usePageTitle("Homepage");
+
   return (
     <>
       <Hero />
@@ -378,9 +381,9 @@ export function Destinations() {
               ))}
             </div>
 
-            <button className="mt-8 flex w-fit items-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.02] hover:bg-brand-400 active:scale-95">
-              Plan this route <ArrowUpRight size={15} />
-            </button>
+            <Link to="/destinations" className="mt-8 flex w-fit items-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white transition-transform hover:scale-[1.02] hover:bg-brand-400 active:scale-95 shadow-lg shadow-brand-500/20">
+                Plan this route <ArrowUpRight size={15} />
+            </Link>
           </div>
         </div>
 

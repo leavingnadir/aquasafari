@@ -16,7 +16,7 @@ public class TripAvailabilityDTO {
     private String route;
     private LocalDate tripDate;
     private LocalTime departureTime;
-    private Integer durationMinutes;
+    private String duration;
     private Integer boatCapacity;
     private Integer seatsReserved;
     private Integer seatsAvailable;
@@ -27,13 +27,13 @@ public class TripAvailabilityDTO {
     }
 
     public TripAvailabilityDTO(Long tripId, String route, LocalDate tripDate, LocalTime departureTime,
-                                Integer durationMinutes, Integer boatCapacity, Integer seatsReserved,
+                                String duration, Integer boatCapacity, Integer seatsReserved,
                                 BigDecimal pricePerSeat) {
         this.tripId = tripId;
         this.route = route;
         this.tripDate = tripDate;
         this.departureTime = departureTime;
-        this.durationMinutes = durationMinutes;
+        this.duration = duration;
         this.boatCapacity = boatCapacity;
         this.seatsReserved = seatsReserved;
         this.seatsAvailable = boatCapacity - seatsReserved;
@@ -72,12 +72,12 @@ public class TripAvailabilityDTO {
         this.departureTime = departureTime;
     }
 
-    public Integer getDurationMinutes() {
-        return durationMinutes;
+    public String getDuration() {
+        return duration;
     }
 
-    public void setDurationMinutes(Integer durationMinutes) {
-        this.durationMinutes = durationMinutes;
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
     public Integer getBoatCapacity() {

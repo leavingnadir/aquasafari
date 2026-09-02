@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
 import { Ship, Loader2 } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 export default function PublicBoatsPage() {
+  usePageTitle("Boats");
   const [boats, setBoats] = useState([]);
   const [loading, setLoading] = useState(true);
 

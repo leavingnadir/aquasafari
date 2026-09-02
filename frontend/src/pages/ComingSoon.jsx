@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Compass, ArrowLeft } from "lucide-react";
+import usePageTitle from "../hooks/usePageTitle";
 
 export default function ComingSoon({ title = "This page" }) {
+  usePageTitle("Error 404");
+
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center font-body bg-surface text-content-primary">
       

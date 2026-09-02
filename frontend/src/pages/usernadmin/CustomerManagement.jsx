@@ -9,8 +9,11 @@ import {
   deleteCustomer,
 } from "../../services/customerService";
 import { Users, UserPlus, Search, Loader2, ShieldAlert } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 export default function CustomerManagement() {
+  usePageTitle("Customer Management");
+
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);

@@ -10,7 +10,7 @@ const QUICK_LINKS = [
 ];
 
 const SUPPORT_LINKS = [
-  { to: "/help", label: "Help Center / FAQ" },
+  { to: "/help", label: "Help Center" },
   { to: "/terms", label: "Terms & Conditions" },
   { to: "/privacy", label: "Privacy Policy" },
   { to: "/cancellation", label: "Cancellation Policy" },

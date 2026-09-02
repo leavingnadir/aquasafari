@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { processPayment } from "../../api/paymentApi";
 import PaymentReceipt from "./PaymentReceipt";
 import { CreditCard, ShieldCheck, Lock, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const METHODS = [
   { value: "CARD", label: "Credit / Debit Card" },
@@ -16,6 +17,7 @@ const METHODS = [
  * /api/payments/process and simulates that redirect for demo purposes.
  */
 export default function ProcessPayment({ bookingId: initialBookingId, amount: initialAmount }) {
+  usePageTitle("Process Payment");
   const [form, setForm] = useState({
     bookingId: initialBookingId ?? "",
     amount: initialAmount ?? "",

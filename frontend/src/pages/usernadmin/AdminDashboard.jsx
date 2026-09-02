@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Users, UserCheck, Ship, CreditCard, ArrowRight, ShieldCheck, FileText, ExternalLink } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const ADMIN_SECTIONS = [
   {
@@ -47,6 +48,8 @@ const ADMIN_SECTIONS = [
 ];
 
 export default function AdminDashboard() {
+  usePageTitle("Admin Dashboard");
+
   const { user } = useAuth();
 
   const displayName = user?.firstName || user?.email?.split("@")[0] || "Administrator";

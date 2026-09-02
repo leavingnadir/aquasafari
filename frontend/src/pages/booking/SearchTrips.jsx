@@ -2,6 +2,7 @@ import { useState } from "react";
 import { searchTrips, bookTrip } from "../../api/bookingApi";
 import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
 import { Search, Calendar, Compass, ShieldAlert, CheckCircle2, Loader2, Users } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const statusStyles = {
   ok: "text-emerald-400",
@@ -9,6 +10,7 @@ const statusStyles = {
 };
 
 export default function SearchTrips() {
+  usePageTitle("Search Trips");
   const [customerId, setCustomerId] = useState(getStoredCustomerId());
   const [route, setRoute] = useState("");
   const [date, setDate] = useState("");

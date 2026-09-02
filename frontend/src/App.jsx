@@ -9,6 +9,11 @@ import Home from "./pages/Home.jsx";
 import ComingSoon from "./pages/ComingSoon.jsx";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
+import DestinationsPage from "./pages/DestinationsPage";
+import HelpCenterPage from "./pages/HelpCenterPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import CancellationPage from "./pages/CancellationPage";
 
 // Boat module
 import BoatManagement from "./pages/boat/BoatManagement.jsx";
@@ -118,12 +123,13 @@ export default function App() {
             />
 
             {/* Utility & Info pages */}
-            <Route path="/help" element={<ComingSoon title="Help Center" />} />
-            <Route path="/terms" element={<ComingSoon title="Terms & Conditions" />} />
-            <Route path="/privacy" element={<ComingSoon title="Privacy Policy" />} />
-            <Route path="/cancellation" element={<ComingSoon title="Cancellation Policy" />} />
+            <Route path="/help" element={<HelpCenterPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/cancellation" element={<CancellationPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/destinations" element={<DestinationsPage />} />
             <Route path="/boats" element={<PublicBoatsPage />} />
 
             {/* Catch-all 404 */}

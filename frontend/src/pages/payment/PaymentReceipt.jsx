@@ -1,5 +1,6 @@
 import React from "react";
 import { Receipt, CheckCircle2, AlertCircle } from "lucide-react";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const STATUS_STYLES = {
   PAID: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
@@ -31,6 +32,8 @@ function formatDate(dateString) {
  * the transaction stub and the tear-off confirmation counterfoil.
  */
 export default function PaymentReceipt({ payment }) {
+  usePageTitle("Payment Receipt");
+
   if (!payment) return null;
 
   const statusClass = STATUS_STYLES[payment.paymentStatus] || STATUS_STYLES.PENDING;

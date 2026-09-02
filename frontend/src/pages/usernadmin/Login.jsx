@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Compass, Mail, Lock, Loader2, ShieldAlert } from "lucide-react";
 import { login } from "../../api/authApi.js";
 import { useAuth } from "../../context/AuthContext.jsx";
+import usePageTitle from "../../hooks/usePageTitle";
 
 // Where each role lands after logging in.
 const ROLE_HOME = {
@@ -15,6 +16,8 @@ const ROLE_HOME = {
 };
 
 export default function Login() {
+  usePageTitle("Login Form");
+
   const { setSession } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { UserPlus, Pencil, Trash2, ShieldCheck, X, Loader2, ShieldAlert } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { getAllStaff, createStaff, updateStaff, deleteStaff } from "../../api/staffApi.js";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const ROLES = ["ADMIN", "BOAT_OPERATOR", "TOUR_GUIDE", "ACCOUNTANT"];
 
@@ -34,6 +35,8 @@ const emptyForm = {
  * doesn't handle: Administrator, Boat Operator, Tour Guide, Accountant.
  */
 export default function StaffManagement() {
+  usePageTitle("Staff Management");
+
   const { auth } = useAuth();
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);

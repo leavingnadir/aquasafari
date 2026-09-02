@@ -61,7 +61,7 @@ public class TripLookupService {
                     rs.getString("Route"),
                     rs.getDate("TripDate").toLocalDate(),
                     rs.getTime("DepartureTime").toLocalTime(),
-                    rs.getInt("Duration"),
+                    rs.getString("Duration"),
                     capacity,
                     reserved,
                     defaultPricePerSeat
@@ -86,7 +86,7 @@ public class TripLookupService {
                     rs.getString("Route"),
                     rs.getDate("TripDate").toLocalDate(),
                     rs.getTime("DepartureTime").toLocalTime(),
-                    rs.getInt("Duration"),
+                    rs.getString("Duration"),
                     capacity,
                     reserved,
                     defaultPricePerSeat
