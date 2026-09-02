@@ -10,6 +10,7 @@ const emptyForm = {
   boatType: "",
   passengerCapacity: "",
   engineType: "",
+  imageUrl: "",
   condition: "GOOD",
   status: "AVAILABLE",
   boatOperatorId: "",
@@ -39,6 +40,7 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
         boatType: boat.boatType ?? "",
         passengerCapacity: boat.passengerCapacity ?? "",
         engineType: boat.engineType ?? "",
+        imageUrl: boat.imageUrl ?? "",
         condition: boat.condition ?? "GOOD",
         status: boat.status ?? "AVAILABLE",
         boatOperatorId: boat.boatOperatorId ?? "",
@@ -152,6 +154,16 @@ export default function BoatFormModal({ boat, onClose, onSubmit }) {
                 value={form.engineType}
                 onChange={(e) => update("engineType", e.target.value)}
                 placeholder="e.g. Twin Outboard 250HP"
+              />
+            </Field>
+
+            <Field label="Boat Image URL" span={2}>
+              <input
+                type="text"
+                className="w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15"
+                value={form.imageUrl}
+                onChange={(e) => update("imageUrl", e.target.value)}
+                placeholder="https://images.unsplash.com/..."
               />
             </Field>
 

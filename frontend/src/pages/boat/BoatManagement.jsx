@@ -64,7 +64,9 @@ export default function BoatManagement() {
         showBanner("success", `Boat ${payload.boatId} added to the fleet.`);
       }
       setShowForm(false);
-      await loadBoats();
+      
+      // CRITICAL: Re-fetch the list from the backend to guarantee fresh state and image sync
+      await loadBoats(); 
     } catch (err) {
       // Surfaces use-case extension 3a: duplicate Boat ID / registration
       showBanner("error", err.message);

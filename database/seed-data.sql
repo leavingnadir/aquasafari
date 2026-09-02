@@ -350,3 +350,18 @@ SET PasswordHash = '123'
 WHERE Email = 'guide@aquasafari.lk';
 
 SELECT * FROM [USER];
+
+--- =============================================
+USE AquaSafariDB;
+GO
+ALTER TABLE BOAT ADD image_url VARCHAR(500);
+SELECT * FROM [BOAT];
+--- =============================================
+
+USE AquaSafariDB;
+GO
+ALTER TABLE BOAT DROP COLUMN image_url;
+GO
+SELECT * FROM [BOAT];
+
+--- =============================================

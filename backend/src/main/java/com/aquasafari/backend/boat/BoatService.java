@@ -78,6 +78,9 @@ public class BoatService {
         boat.setPassengerCapacity(request.getPassengerCapacity());
         boat.setEngineType(request.getEngineType());
         boat.setBoatOperatorId(request.getBoatOperatorId());
+        
+        // Explicitly map the image URL from request to entity
+        boat.setImageUrl(request.getImageUrl());
 
         if (request.getCondition() != null) {
             boat.setCondition(request.getCondition());

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MapPin,
   Star,
@@ -17,9 +17,9 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
+import axiosClient from "../api/axiosClient";
 
 import {
-  BOATS,
   DESTINATIONS,
   ACTIVITIES,
   TESTIMONIALS,
@@ -109,6 +109,14 @@ function Hero() {
 /* ---------------------------------- BOATS --------------------------------- */
 
 function FeaturedBoats() {
+  const [featuredBoats, setFeaturedBoats] = useState([]);
+
+  useEffect(() => {
+    axiosClient.get("/boats")
+      .then(res => setFeaturedBoats(res.data.slice(0, 4)))
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="container-page py-20">
       <div className="mb-8 flex items-end justify-between">
@@ -126,8 +134,8 @@ function FeaturedBoats() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {BOATS.map((b) => (
-          <BoatCard key={b.name} boat={b} />
+        {featuredBoats.map((b) => (
+          <BoatCard key={b.boatId || b.id} boat={b} />
         ))}
       </div>
     </section>
@@ -136,36 +144,33 @@ function FeaturedBoats() {
 
 /* ------------------------------ Boat Card ----------------------------- */
 
-function BoatCard({ boat }) {
+function BoatCard({ boat, onReserve }) {
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-surface-900 shadow-card">
+    <article className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-surface-900 shadow-card border border-surface-800 transition-all duration-300 hover:border-brand-500/30">
       {/* --- Image Section with Seamless Gradient Fade --- */}
-      <div className="relative h-64 w-full shrink-0">
+      <div className="relative h-64 w-full shrink-0 overflow-hidden">
         <img
-          src={boat.img}
+          src={boat.imageUrl || "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600"}
           alt={boat.name}
-          className="h-full w-full object-cover transition-transform duration-700"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {/* The gradient fades from the image into the exact background color of the card body */}
-        <div className="absolute inset-0 bg-gradient-to-t from-surface-900 via-surface-900/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-surface-900 via-surface-900/40 to-transparent" />
       </div>
 
       {/* --- Content Section --- */}
       <div className="relative z-10 flex grow flex-col px-6 pb-6 pt-2">
         
-        {/* Title & Price Row */}
+        {/* Title Row (Price removed from here) */}
         <div className="flex items-start justify-between gap-4">
           <h3 className="font-display text-2xl font-semibold tracking-tight text-content-primary">
             {boat.name}
           </h3>
-          <div className="whitespace-nowrap rounded-full bg-surface/80 px-3 py-1.5 text-sm font-semibold text-content-primary backdrop-blur-md">
-            {boat.price}
-          </div>
         </div>
 
-        {/* Description Paragraph (Constructed from data to match the layout) */}
+        {/* Description Paragraph (Constructed from dynamic API data) */}
         <p className="mt-3 text-sm leading-relaxed text-content-secondary line-clamp-3">
-          Set sail in {boat.place}. This beautiful vessel offers {boat.cabins} cabins and breathtaking views, perfect for up to {boat.people} people.
+          Explore the open waters with this vessel. Designed for maximum comfort, accommodating up to {boat.passengerCapacity || boat.capacity || "10"} passengers.
         </p>
 
         {/* Pill Tags */}
@@ -175,17 +180,21 @@ function BoatCard({ boat }) {
             Top Rated
           </span>
           <span className="rounded-full bg-surface-800 px-3 py-1.5 text-xs font-medium text-content-secondary">
-            {boat.dates} stay
-          </span>
-          <span className="rounded-full bg-surface-800 px-3 py-1.5 text-xs font-medium text-content-secondary">
-            {boat.length}
+            {boat.boatType || "Safari Boat"}
           </span>
         </div>
 
-        {/* Full-width CTA Button */}
-        <button className="mt-6 w-full rounded-2xl bg-white py-3.5 text-sm font-bold text-black transition-transform hover:scale-[1.02] active:scale-95">
-          Reserve
-        </button>
+        {/* --- Price & Reserve Section --- */}
+        <div className="mt-6 flex items-center justify-between gap-4 pt-4 border-t border-surface-800/60">
+          {/* Full CTA Button */}
+          <button 
+            onClick={() => onReserve && onReserve(boat)}
+            className="flex-1 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-500/20"
+          >
+            Reserve Now
+          </button>
+        </div>
+
       </div>
     </article>
   );
@@ -273,7 +282,7 @@ function GlobalSafariFacts() {
           </div>
         </div>
 
-        {/* Column 3 (Inverted Dark Contrast Card - mirroring the dark card in your reference) */}
+        {/* Column 3 (Inverted Dark Contrast Card) */}
         <div className="rounded-[2.5rem] border border-surface-800 bg-surface p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden text-content-primary">
           {/* Background watermark icon */}
           <div className="absolute -right-6 -bottom-6 text-surface-800/40 pointer-events-none">
@@ -344,7 +353,7 @@ export function Destinations() {
               alt={active}
               className="absolute inset-0 h-full w-full object-cover"
             />
-            </div>
+          </div>
 
           {/* Content Section */}
           <div className="flex flex-col justify-center p-8 sm:p-12">
@@ -376,7 +385,6 @@ export function Destinations() {
         </div>
 
         {/* Bottom Activity Grid */}
-        {/* Using 'bg-surface' on the gap creates a clean separation line between images */}
         <div className="grid grid-cols-3 gap-[2px] bg-surface">
           {ACTIVITIES.map((a) => (
             <div key={a.label} className="group relative h-32 overflow-hidden sm:h-40">
@@ -485,8 +493,7 @@ export function FAQ() {
 
   return (
     <section className="container-page mx-auto max-w-4xl py-24 pb-32">
-      
-      {/* Header aligned exactly like the reference image */}
+      {/* Header */}
       <div className="flex flex-col items-center text-center">
         <div className="flex items-center gap-2 rounded-full border border-surface-800 bg-surface-900 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-content-muted">
           <span>010</span>
@@ -539,7 +546,7 @@ export function FAQ() {
                 </div>
               </button>
 
-              {/* Expandable Content with smooth grid transition */}
+              {/* Expandable Content */}
               <div
                 className={`grid transition-all duration-300 ease-in-out ${
                   isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
@@ -564,18 +571,15 @@ export function FAQ() {
 function OceanHorizonBanner() {
   return (
     <section className="container-page py-20">
-      {/* Outer rounded card container matching the image proportions */}
       <div className="relative h-[420px] w-full overflow-hidden rounded-[3rem] border border-surface-800 bg-black p-8 sm:p-12 flex flex-col justify-between shadow-2xl">
         
-        {/* Abstract Dotted Curved Horizon Background (Thematic replacement for the globe graphic) */}
+        {/* Background Dotted Curved Horizon */}
         <div className="absolute inset-x-0 bottom-0 top-1/4 overflow-hidden pointer-events-none opacity-40">
           <div className="absolute inset-0 bg-[radial-gradient(#F05C35_1.5px,transparent_1.5px)] [background-size:28px_28px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)] transform perspective-1000 rotate-x-12 scale-125 translate-y-16" />
         </div>
 
-        {/* Ambient background glow in brand orange */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-96 rounded-full bg-brand-500/10 blur-[120px] pointer-events-none" />
 
-        {/* Top Floating Location Pill (Matches the "Netherlands" pill in your image) */}
         <div className="relative z-10 self-center">
           <div className="flex items-center gap-2.5 rounded-full border border-surface-800 bg-surface-900/80 px-4 py-2 text-xs font-medium text-content-primary backdrop-blur-md shadow-lg">
             <MapPin size={14} className="text-brand-500 animate-bounce" />
@@ -583,7 +587,6 @@ function OceanHorizonBanner() {
           </div>
         </div>
 
-        {/* Center Content / Optional text overlay */}
         <div className="relative z-10 text-center max-w-lg mx-auto">
           <h3 className="font-display text-2xl font-normal text-content-primary sm:text-3xl tracking-tight">
             Ready to set sail?
@@ -593,10 +596,7 @@ function OceanHorizonBanner() {
           </p>
         </div>
 
-        {/* Bottom Floating Control Buttons (Matches the bottom-left and bottom-right buttons in your image) */}
         <div className="relative z-10 flex items-center justify-between">
-          
-          {/* Bottom Left: "Visit site" style pill button */}
           <Link
             to="/search"
             className="group flex items-center gap-2 rounded-full border border-surface-800 bg-surface-900/90 px-6 py-3 text-sm font-semibold text-content-primary backdrop-blur-md transition-all hover:border-brand-500/50 hover:bg-surface-800 active:scale-95 shadow-xl"
@@ -605,7 +605,6 @@ function OceanHorizonBanner() {
             <ArrowUpRight size={16} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 text-brand-500" />
           </Link>
 
-          {/* Bottom Right: Action icon button (matches the icon circle in your reference) */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex h-12 w-12 items-center justify-center rounded-full border border-surface-800 bg-surface-900/90 text-content-primary backdrop-blur-md transition-all hover:border-brand-500/50 hover:bg-surface-800 active:scale-95 shadow-xl"
@@ -613,7 +612,6 @@ function OceanHorizonBanner() {
           >
             <Compass size={20} className="text-brand-500 animate-spin-slow" />
           </button>
-
         </div>
 
       </div>

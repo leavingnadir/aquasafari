@@ -24,6 +24,7 @@ export default function BoatTable({ boats, onEdit, onDelete }) {
           <thead className="bg-surface/50">
             <tr>
               <Th>Boat ID</Th>
+              <Th>Image</Th>
               <Th>Name</Th>
               <Th>Type</Th>
               <Th>Capacity</Th>
@@ -36,9 +37,26 @@ export default function BoatTable({ boats, onEdit, onDelete }) {
           </thead>
           <tbody className="divide-y divide-surface-800/60">
             {boats.map((boat) => (
-              <tr key={boat.id} className="transition-colors hover:bg-surface-800/40">
+              <tr key={boat.id || boat.boatId} className="transition-colors hover:bg-surface-800/40">
                 <td className="whitespace-nowrap px-6 py-4 font-mono text-xs text-content-secondary">
                   {boat.boatId}
+                </td>
+                <td className="px-4 py-3">
+                  {boat.imageUrl ? (
+                    <img 
+                      src={boat.imageUrl} 
+                      alt={boat.name} 
+                      className="h-10 w-14 rounded-lg object-cover border border-surface-800"
+                      onError={(e) => {
+                        // Fallback if the URL fails to load
+                        e.target.src = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600";
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-10 w-14 items-center justify-center rounded-lg bg-surface-800 text-[10px] text-content-muted">
+                      No Image
+                    </div>
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 font-display font-medium text-content-primary">
                   {boat.name}

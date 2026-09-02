@@ -12,6 +12,7 @@ import Contact from "./pages/Contact.jsx";
 
 // Boat module
 import BoatManagement from "./pages/boat/BoatManagement.jsx";
+import PublicBoatsPage from "./pages/boat/PublicBoatsPage.jsx";
 
 // Booking module
 import SearchTrips from "./pages/booking/SearchTrips.jsx";
@@ -123,6 +124,7 @@ export default function App() {
             <Route path="/cancellation" element={<ComingSoon title="Cancellation Policy" />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/boats" element={<PublicBoatsPage />} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<ComingSoon title="Page" />} />

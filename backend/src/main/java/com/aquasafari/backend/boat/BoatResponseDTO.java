@@ -11,6 +11,7 @@ public class BoatResponseDTO {
     private String boatType;
     private Integer passengerCapacity;
     private String engineType;
+    private String imageUrl; // <-- Added here
     private BoatCondition condition;
     private BoatStatus status;
     private Long boatOperatorId;
@@ -25,6 +26,7 @@ public class BoatResponseDTO {
         dto.boatType = boat.getBoatType();
         dto.passengerCapacity = boat.getPassengerCapacity();
         dto.engineType = boat.getEngineType();
+        dto.imageUrl = boat.getImageUrl(); // <-- Mapped from entity
         dto.condition = boat.getCondition();
         dto.status = boat.getStatus();
         dto.boatOperatorId = boat.getBoatOperatorId();
@@ -55,6 +57,10 @@ public class BoatResponseDTO {
 
     public String getEngineType() {
         return engineType;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     public BoatCondition getCondition() {

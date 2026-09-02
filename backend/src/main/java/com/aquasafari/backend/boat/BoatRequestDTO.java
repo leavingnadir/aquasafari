@@ -21,6 +21,8 @@ public class BoatRequestDTO {
 
     private String engineType;
 
+    private String imageUrl; // <-- Added here
+
     private BoatCondition condition;
 
     private BoatStatus status;
@@ -66,6 +68,14 @@ public class BoatRequestDTO {
 
     public void setEngineType(String engineType) {
         this.engineType = engineType;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public BoatCondition getCondition() {

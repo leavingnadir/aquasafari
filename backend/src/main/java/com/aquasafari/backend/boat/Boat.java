@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
  * BOAT entity — Fleet Management module.
  *
  * Field origin notes (so teammates reviewing the EER diagram can follow along):
- *  - id, boatType, capacity, condition        -> straight from the EER diagram's BOAT entity
+ *  - id, boatType, capacity, condition         -> straight from the EER diagram's BOAT entity
  *  - registrationCode, name, engineType,
- *    status, boatOperatorId                   -> added to satisfy the use-case scenario
+ *    status, boatOperatorId                    -> added to satisfy the use-case scenario
  *                                                ("Boat ID, Name, Passenger Capacity, Engine Type",
  *                                                "assigns an active Boat Operator", "status indicators")
  *
@@ -25,7 +25,7 @@ public class Boat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "BoatID") // <-- Fixed: Maps to your database primary key column BoatID
+    @Column(name = "BoatID") // <-- Maps to your database primary key column BoatID
     private Long id;
 
     /**
@@ -51,6 +51,9 @@ public class Boat {
 
     @Column(name = "EngineType", length = 50)
     private String engineType;
+
+    @Column(name = "ImageUrl", length = 500)
+    private String imageUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Condition", nullable = false, length = 20)
@@ -132,6 +135,14 @@ public class Boat {
 
     public void setEngineType(String engineType) {
         this.engineType = engineType;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public BoatCondition getCondition() {
