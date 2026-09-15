@@ -1,3 +1,6 @@
+CREATE DATABASE AquaSafariDB;
+GO
+
 USE AquaSafariDB;
 GO
 
