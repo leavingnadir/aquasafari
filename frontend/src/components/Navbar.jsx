@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Menu, X, Compass, ArrowRight, LogOut, User } from "lucide-react";
+import { Menu, X, Compass, ArrowRight, LogOut, User, LayoutDashboard } from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const LINKS = [
-  { to: "/search", label: "Search Boats" },
   { to: "/boats", label: "Our Fleet"},
+  { to: "/safaris", label: "Trips"},
   { to: "/destinations", label: "Destinations"},
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
@@ -21,6 +21,10 @@ export default function Navbar() {
     setOpen(false);
     navigate("/login");
   };
+
+  // Case-insensitive check to see if the logged-in user is an admin
+  const userRole = user?.role?.toLowerCase() || "";
+  const isAdmin = userRole === "administrator" || userRole === "admin" || user?.isAdmin === true;
 
   // Extracts display name (falls back to email or generic user text)
   const displayName = user?.firstName || user?.email?.split("@")[0] || "Account";
@@ -52,6 +56,21 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
+
+          {/* Admin Dashboard Link - Appears only if logged in as Admin */}
+          {isAuthenticated && isAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+                  isActive ? "text-brand-400 font-semibold" : "text-brand-500 hover:text-brand-400"
+                }`
+              }
+            >
+              <LayoutDashboard size={15} />
+              <span>Dashboard</span>
+            </NavLink>
+          )}
         </nav>
 
         {/* Desktop Auth Section */}
@@ -107,6 +126,19 @@ export default function Navbar() {
                   {link.label}
                 </NavLink>
               ))}
+
+              {/* Mobile Admin Dashboard Link */}
+              {isAuthenticated && isAdmin && (
+                <NavLink
+                  to="/admin"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 text-base font-medium text-brand-400 transition-colors hover:text-brand-300 py-1"
+                >
+                  <LayoutDashboard size={18} />
+                  <span>Admin Dashboard</span>
+                </NavLink>
+              )}
+
               <div className="my-2 h-[1px] w-full bg-surface-800" />
               
               {isAuthenticated ? (

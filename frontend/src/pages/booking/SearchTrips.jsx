@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { searchTrips, bookTrip } from "../../api/bookingApi";
 import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
-import { Search, Calendar, Compass, ShieldAlert, CheckCircle2, Loader2, Users } from "lucide-react";
+import { Search, Calendar, Compass, ShieldAlert, CheckCircle2, Loader2, Users, CreditCard } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const statusStyles = {
@@ -11,6 +12,7 @@ const statusStyles = {
 
 export default function SearchTrips() {
   usePageTitle("Search Trips");
+  const navigate = useNavigate();
   const [customerId, setCustomerId] = useState(getStoredCustomerId());
   const [route, setRoute] = useState("");
   const [date, setDate] = useState("");
@@ -27,7 +29,6 @@ export default function SearchTrips() {
     e?.preventDefault();
     setLoading(true);
     setError("");
-    setConfirmation(null);
     try {
       const results = await searchTrips({ route, date });
       setTrips(results);
@@ -58,12 +59,29 @@ export default function SearchTrips() {
         passengerCount: count,
       });
       setConfirmation(booking);
-      runSearch(); // refresh availability now that seats are held
+      
+      // Refresh search results to show reduced available seats immediately
+      await runSearch();
+
+      // Automatically redirect to the correct payment checkout route matching App.jsx
+      const bookingId = booking.bookingId || booking.id;
+      if (bookingId) {
+        setTimeout(() => {
+          navigate(`/payment/checkout?bookingId=${bookingId}`);
+        }, 1200);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setBookingTripId(null);
     }
+  };
+
+  const handleProceedToPayment = () => {
+    if (!confirmation) return;
+    const bookingId = confirmation.bookingId || confirmation.id;
+    // Must match the exact route path in App.jsx: /payment/checkout
+    navigate(`/payment/checkout?bookingId=${bookingId}`);
   };
 
   return (
@@ -132,17 +150,21 @@ export default function SearchTrips() {
       )}
 
       {confirmation && (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-emerald-300">
-          <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-400" />
-          <div className="text-sm">
-            Reserved. Booking <span className="font-semibold text-content-primary">#{confirmation.bookingId}</span> is{" "}
-            <span className="font-semibold text-content-primary">{confirmation.bookingStatus}</span> — complete payment
-            before{" "}
-            <span className="font-semibold text-content-primary">
-              {new Date(confirmation.reservationExpiresAt).toLocaleTimeString()}
-            </span>{" "}
-            or the seats are released back to the pool.
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-emerald-300">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-400" />
+            <div className="text-sm">
+              Reserved! Booking <span className="font-semibold text-content-primary">#{confirmation.bookingId || confirmation.id}</span> is{" "}
+              <span className="font-semibold text-content-primary">{confirmation.bookingStatus}</span>. Redirecting to payment...
+            </div>
           </div>
+          <button
+            onClick={handleProceedToPayment}
+            className="flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-md hover:bg-emerald-600 transition-all shrink-0"
+          >
+            <CreditCard size={14} />
+            <span>Pay Now</span>
+          </button>
         </div>
       )}
 
@@ -169,7 +191,15 @@ export default function SearchTrips() {
         {trips?.map((trip) => {
           const isFull = trip.seatsAvailable <= 0;
           const passengerCount = passengerCounts[trip.tripId] ?? 1;
-          const total = (trip.pricePerSeat * passengerCount).toFixed(2);
+          
+          const unitPrice = 
+            trip.pricePerSeat ?? 
+            trip.pricePerPerson ?? 
+            trip.basePrice ?? 
+            trip.price ?? 
+            0;
+
+          const total = (unitPrice * passengerCount).toFixed(2);
 
           return (
             <li
@@ -180,7 +210,7 @@ export default function SearchTrips() {
                 <div>
                   <h2 className="font-display text-xl font-normal text-content-primary">{trip.route}</h2>
                   <p className="mt-1 text-xs text-content-secondary">
-                    {trip.tripDate} · {trip.departureTime} · {trip.durationMinutes} min
+                    {trip.tripDate} · {trip.departureTime} · {trip.durationMinutes || trip.duration}
                   </p>
                   <p className={`mt-2 text-xs font-semibold uppercase tracking-wider ${isFull ? statusStyles.full : statusStyles.ok}`}>
                     {isFull ? "Fully booked" : `${trip.seatsAvailable} of ${trip.boatCapacity} seats available`}

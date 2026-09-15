@@ -91,10 +91,7 @@ export default function App() {
               } 
             />
 
-            {/* Trip module
-                Use case: Administrator is the primary actor who schedules trips;
-                Boat Operator and Tour Guide are secondary actors, so they can view
-                the schedule (their own assignments) but not create/edit/delete. */}
+            {/* Trip module*/}
             <Route
               path="/trips"
               element={

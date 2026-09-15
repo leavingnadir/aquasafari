@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Users, UserCheck, Ship, CreditCard, ArrowRight, ShieldCheck, FileText, ExternalLink } from "lucide-react";
+import { Users, UserCheck, Ship, CreditCard, Compass, ArrowRight, ShieldCheck, FileText, ExternalLink } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -28,6 +28,14 @@ const ADMIN_SECTIONS = [
     to: "/boat/manage",
     badge: "Fleet",
     color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  },
+  {
+    title: "Trip Management",
+    description: "Schedule new safari departures, assign boats, skippers, and tour guides.",
+    icon: Compass,
+    to: "/trips",
+    badge: "Operations",
+    color: "text-brand-400 bg-brand-500/10 border-brand-500/20",
   },
   {
     title: "Payment Records",

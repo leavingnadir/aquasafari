@@ -11,13 +11,8 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Reads trip + boat data straight from the shared SQL Server tables using
- * plain SQL, matching the PascalCase column names in the database schema.
- */
 @Service
 public class TripLookupService {
 
@@ -33,12 +28,12 @@ public class TripLookupService {
     }
 
     /**
-     * Search Trips: optional route keyword + optional date, returns each
-     * matching trip with live seat availability using PascalCase columns.
+     * Search Trips: queries the database, including the actual trip Price column
+     * so it matches the safaris section.
      */
     public List<TripAvailabilityDTO> searchTrips(String routeKeyword, LocalDate tripDate) {
         StringBuilder sql = new StringBuilder(
-                "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, b.Capacity " +
+                "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, t.Price, b.Capacity " +
                 "FROM TRIP t JOIN BOAT b ON t.BoatID = b.BoatID WHERE 1=1");
         List<Object> params = new java.util.ArrayList<>();
 
@@ -56,31 +51,11 @@ public class TripLookupService {
             Long tripId = rs.getLong("TripID");
             Integer capacity = rs.getInt("Capacity");
             Integer reserved = bookingRepository.countReservedSeatsForTrip(tripId, LocalDateTime.now());
-            TripAvailabilityDTO dto = new TripAvailabilityDTO(
-                    tripId,
-                    rs.getString("Route"),
-                    rs.getDate("TripDate").toLocalDate(),
-                    rs.getTime("DepartureTime").toLocalTime(),
-                    rs.getString("Duration"),
-                    capacity,
-                    reserved,
-                    defaultPricePerSeat
-            );
-            return dto;
-        }, params.toArray());
-    }
+            
+            // Read the real price from the TRIP table
+            BigDecimal dbPrice = rs.getBigDecimal("Price");
+            BigDecimal finalPrice = (dbPrice != null) ? dbPrice : defaultPricePerSeat;
 
-    /**
-     * Fetches a single trip's availability, used when the customer proceeds
-     * to book (step 2-4 of the main scenario).
-     */
-    public TripAvailabilityDTO getTripAvailability(Long tripId) {
-        String sql = "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, b.Capacity " +
-                "FROM TRIP t JOIN BOAT b ON t.BoatID = b.BoatID WHERE t.TripID = ?";
-
-        List<TripAvailabilityDTO> results = jdbcTemplate.query(sql, (rs, rowNum) -> {
-            Integer capacity = rs.getInt("Capacity");
-            Integer reserved = bookingRepository.countReservedSeatsForTrip(tripId, LocalDateTime.now());
             return new TripAvailabilityDTO(
                     tripId,
                     rs.getString("Route"),
@@ -89,7 +64,34 @@ public class TripLookupService {
                     rs.getString("Duration"),
                     capacity,
                     reserved,
-                    defaultPricePerSeat
+                    finalPrice
+            );
+        }, params.toArray());
+    }
+
+    /**
+     * Fetches a single trip's availability using the real database price.
+     */
+    public TripAvailabilityDTO getTripAvailability(Long tripId) {
+        String sql = "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, t.Price, b.Capacity " +
+                "FROM TRIP t JOIN BOAT b ON t.BoatID = b.BoatID WHERE t.TripID = ?";
+
+        List<TripAvailabilityDTO> results = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Integer capacity = rs.getInt("Capacity");
+            Integer reserved = bookingRepository.countReservedSeatsForTrip(tripId, LocalDateTime.now());
+            
+            BigDecimal dbPrice = rs.getBigDecimal("Price");
+            BigDecimal finalPrice = (dbPrice != null) ? dbPrice : defaultPricePerSeat;
+
+            return new TripAvailabilityDTO(
+                    tripId,
+                    rs.getString("Route"),
+                    rs.getDate("TripDate").toLocalDate(),
+                    rs.getTime("DepartureTime").toLocalTime(),
+                    rs.getString("Duration"),
+                    capacity,
+                    reserved,
+                    finalPrice
             );
         }, tripId);
 

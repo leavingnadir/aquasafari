@@ -1,56 +1,77 @@
-const BASE_URL = "http://localhost:8080/api/payments";
-
-async function handleResponse(res) {
-  let body = null;
-  try {
-    body = await res.json();
-  } catch (_) {
-    // no JSON body (e.g. 204 No Content)
-  }
-  if (!res.ok) {
-    const message = body?.reason || body?.error || `Request failed (${res.status})`;
-    const error = new Error(message);
-    error.status = res.status;
-    error.body = body;
-    throw error;
-  }
-  return body;
-}
+import axiosClient from "./axiosClient";
 
 export async function processPayment(payload) {
-  const res = await fetch(`${BASE_URL}/process`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return handleResponse(res);
+  try {
+    const response = await axiosClient.post("/payments/process", payload);
+    return response.data;
+  } catch (error) {
+    // Standardize error handling to match your previous `handleResponse` structure
+    const err = new Error(
+      error.response?.data?.reason || 
+      error.response?.data?.error || 
+      error.response?.data?.message || 
+      error.message
+    );
+    err.status = error.response?.status;
+    err.body = error.response?.data;
+    throw err;
+  }
 }
 
 export async function getPaymentHistory() {
-  const res = await fetch(`${BASE_URL}/history`);
-  return handleResponse(res);
+  try {
+    const response = await axiosClient.get("/payments/history");
+    return response.data;
+  } catch (error) {
+    throw formatError(error);
+  }
 }
 
 export async function getPaymentsByBooking(bookingId) {
-  const res = await fetch(`${BASE_URL}/booking/${bookingId}`);
-  return handleResponse(res);
+  try {
+    const response = await axiosClient.get(`/payments/booking/${bookingId}`);
+    return response.data;
+  } catch (error) {
+    throw formatError(error);
+  }
 }
 
 export async function getPaymentById(paymentId) {
-  const res = await fetch(`${BASE_URL}/${paymentId}`);
-  return handleResponse(res);
+  try {
+    const response = await axiosClient.get(`/payments/${paymentId}`);
+    return response.data;
+  } catch (error) {
+    throw formatError(error);
+  }
 }
 
 export async function updatePayment(paymentId, payload) {
-  const res = await fetch(`${BASE_URL}/${paymentId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return handleResponse(res);
+  try {
+    const response = await axiosClient.put(`/payments/${paymentId}`, payload);
+    return response.data;
+  } catch (error) {
+    throw formatError(error);
+  }
 }
 
 export async function deletePaymentRecord(paymentId) {
-  const res = await fetch(`${BASE_URL}/${paymentId}`, { method: "DELETE" });
-  return handleResponse(res);
+  try {
+    const response = await axiosClient.delete(`/payments/${paymentId}`);
+    return response.data;
+  } catch (error) {
+    throw formatError(error);
+  }
+}
+
+// Helper to keep error format consistent across all functions
+function formatError(error) {
+  const err = new Error(
+    error.response?.data?.reason || 
+    error.response?.data?.error || 
+    error.response?.data?.message || 
+    error.message
+  );
+  err.status = error.response?.status;
+  err.body = error.response?.data;
+  return err;
 }

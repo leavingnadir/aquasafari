@@ -3,9 +3,27 @@ const API_ROOT = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 const BASE_URL = `${API_ROOT}/api/trips`;
 
 async function request(path = "", options = {}) {
+  // Extract token from the stored 'aquasafari_auth' JSON object
+  let token = null;
+  try {
+    const authData = JSON.parse(localStorage.getItem("aquasafari_auth"));
+    token = authData?.token;
+  } catch (e) {
+    // Fallback if it's stored differently
+    token = localStorage.getItem("token");
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers: {
+      ...headers,
+      ...(options.headers || {}),
+    },
   });
 
   if (res.status === 204) return null;

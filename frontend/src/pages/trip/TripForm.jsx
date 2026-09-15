@@ -7,6 +7,20 @@ import {
   checkConflicts,
   getResources,
 } from "../../services/tripService";
+import {
+  Compass,
+  Calendar,
+  Clock,
+  Timer,
+  DollarSign,
+  Anchor,
+  Users,
+  UserCheck,
+  ArrowLeft,
+  Loader2,
+  ShieldAlert,
+  CheckCircle2,
+} from "lucide-react";
 
 const EMPTY = {
   route: "",
@@ -113,84 +127,85 @@ export default function TripForm() {
     }
   };
 
-  const field =
-    "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600";
-  const label = "block text-sm font-medium text-slate-800";
-
   return (
-    <div className="min-h-screen bg-slate-50 px-6 py-10">
+    <div className="min-h-screen px-4 pt-24 pb-16 font-body text-content-primary">
       <div className="mx-auto max-w-3xl">
         <button
           onClick={() => navigate("/trips")}
-          className="text-sm text-slate-600 underline-offset-4 hover:underline"
+          className="group mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-content-secondary transition-colors hover:text-brand-500"
         >
-          Back to trip schedule
+          <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-1" />
+          <span>Back to trip schedule</span>
         </button>
 
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+        <h1 className="font-display text-3xl font-normal tracking-tight text-content-primary">
           {isEdit ? `Edit trip #${id}` : "Schedule a trip"}
         </h1>
-        <p className="mt-1 max-w-prose text-sm text-slate-600">
+        <p className="mt-1 max-w-prose text-sm text-content-secondary">
           Set the route and departure, then allocate a boat and crew. The slot is checked for clashes before
           anything is saved.
         </p>
 
         {conflicts.length > 0 && (
-          <div className="mt-6 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
-            <p className="font-medium">This slot is already taken</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5">
+          <div className="mt-6 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-5 text-rose-400">
+            <p className="text-xs font-bold uppercase tracking-wider">This slot is already taken</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
               {conflicts.map((c) => (
                 <li key={c}>{c}</li>
               ))}
             </ul>
           </div>
         )}
+
         {error && conflicts.length === 0 && (
-          <p className="mt-6 rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
-            {error}
-          </p>
-        )}
-        {notice && (
-          <p className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-900">
-            {notice}
-          </p>
+          <div className="mt-6 flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-rose-400">
+            <ShieldAlert size={18} className="shrink-0" />
+            <span className="text-sm font-medium">{error}</span>
+          </div>
         )}
 
-        <div className="mt-6 space-y-8 rounded-lg border border-slate-200 bg-white p-6">
+        {notice && (
+          <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-emerald-400">
+            <CheckCircle2 size={18} className="shrink-0" />
+            <span className="text-sm font-medium">{notice}</span>
+          </div>
+        )}
+
+        <div className="mt-6 space-y-8 rounded-[2.5rem] border border-surface-800 bg-surface-900 p-8 shadow-2xl">
           <section className="grid gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className={label} htmlFor="route">
-                Route
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="route">
+                <Compass size={14} className="text-brand-500" /> Route
               </label>
               <input
                 id="route"
                 value={form.route}
                 onChange={set("route")}
                 placeholder="Mangrove River Safari"
-                className={field}
+                className={inputStyle}
               />
             </div>
             <div>
-              <label className={label} htmlFor="tripDate">
-                Date
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="tripDate">
+                <Calendar size={14} className="text-brand-500" /> Date
               </label>
-              <input id="tripDate" type="date" value={form.tripDate} onChange={set("tripDate")} className={field} />
+              <input id="tripDate" type="date" value={form.tripDate} onChange={set("tripDate")} className={inputStyle} />
             </div>
             <div>
-              <label className={label} htmlFor="departureTime">
-                Start time
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="departureTime">
+                <Clock size={14} className="text-brand-500" /> Start time
               </label>
               <input
                 id="departureTime"
                 type="time"
                 value={form.departureTime}
                 onChange={set("departureTime")}
-                className={field}
+                className={inputStyle}
               />
             </div>
             <div>
-              <label className={label} htmlFor="duration">
-                Duration
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="duration">
+                <Timer size={14} className="text-brand-500" /> Duration
               </label>
               <input
                 id="duration"
@@ -198,20 +213,20 @@ export default function TripForm() {
                 value={form.duration}
                 onChange={set("duration")}
                 placeholder="3 Hours"
-                className={field}
+                className={inputStyle}
               />
               <datalist id="duration-presets">
                 {DURATION_PRESETS.map((d) => (
                   <option key={d} value={d} />
                 ))}
               </datalist>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-content-muted">
                 Written as hours or minutes. It is read back as a length when checking for clashes.
               </p>
             </div>
             <div>
-              <label className={label} htmlFor="price">
-                Price per seat (LKR)
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="price">
+                <DollarSign size={14} className="text-brand-500" /> Price per seat (LKR)
               </label>
               <input
                 id="price"
@@ -220,51 +235,51 @@ export default function TripForm() {
                 step="50"
                 value={form.price}
                 onChange={set("price")}
-                className={field}
+                className={inputStyle}
               />
             </div>
           </section>
 
-          <section className="border-t border-slate-200 pt-6">
-            <h2 className="text-base font-semibold text-slate-900">Boat and crew</h2>
-            <p className="mt-1 text-sm text-slate-600">
+          <section className="border-t border-surface-800 pt-6">
+            <h2 className="font-display text-xl font-normal text-content-primary">Boat and crew</h2>
+            <p className="mt-1 text-xs text-content-secondary">
               Every trip needs all three before it can be saved.
             </p>
             <div className="mt-4 grid gap-5 sm:grid-cols-3">
               <div>
-                <label className={label} htmlFor="boatId">
-                  Boat
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="boatId">
+                  <Anchor size={14} className="text-brand-500" /> Boat
                 </label>
-                <select id="boatId" value={form.boatId} onChange={set("boatId")} className={field}>
-                  <option value="">Choose a boat</option>
+                <select id="boatId" value={form.boatId} onChange={set("boatId")} className={selectStyle}>
+                  <option value="" className="bg-surface-900 text-content-muted">Choose a boat</option>
                   {resources.boats.map((b) => (
-                    <option key={b.id} value={b.id}>
+                    <option key={b.id} value={b.id} className="bg-surface-900 text-content-primary">
                       {b.label}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={label} htmlFor="operatorId">
-                  Boat operator
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="operatorId">
+                  <Users size={14} className="text-brand-500" /> Boat operator
                 </label>
-                <select id="operatorId" value={form.operatorId} onChange={set("operatorId")} className={field}>
-                  <option value="">Choose a skipper</option>
+                <select id="operatorId" value={form.operatorId} onChange={set("operatorId")} className={selectStyle}>
+                  <option value="" className="bg-surface-900 text-content-muted">Choose a skipper</option>
                   {resources.operators.map((o) => (
-                    <option key={o.id} value={o.id}>
+                    <option key={o.id} value={o.id} className="bg-surface-900 text-content-primary">
                       {o.label}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={label} htmlFor="guideId">
-                  Tour guide
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-content-secondary" htmlFor="guideId">
+                  <UserCheck size={14} className="text-brand-500" /> Tour guide
                 </label>
-                <select id="guideId" value={form.guideId} onChange={set("guideId")} className={field}>
-                  <option value="">Choose a guide</option>
+                <select id="guideId" value={form.guideId} onChange={set("guideId")} className={selectStyle}>
+                  <option value="" className="bg-surface-900 text-content-muted">Choose a guide</option>
                   {resources.guides.map((g) => (
-                    <option key={g.id} value={g.id}>
+                    <option key={g.id} value={g.id} className="bg-surface-900 text-content-primary">
                       {g.label}
                     </option>
                   ))}
@@ -273,25 +288,26 @@ export default function TripForm() {
             </div>
           </section>
 
-          <div className="flex flex-wrap gap-3 border-t border-slate-200 pt-6">
+          <div className="flex flex-wrap items-center justify-end gap-3 border-t border-surface-800 pt-6">
             <button
-              onClick={save}
-              disabled={saving}
-              className="rounded-md bg-teal-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-teal-800 disabled:opacity-60"
+              onClick={() => navigate("/trips")}
+              className="rounded-full border border-surface-800 bg-surface px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-content-secondary transition-all hover:bg-surface-800 hover:text-content-primary"
             >
-              {saving ? "Saving…" : isEdit ? "Save changes" : "Create trip"}
+              Discard
             </button>
             <button
               onClick={verify}
-              className="rounded-md border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+              className="rounded-full border border-surface-800 bg-surface px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-content-secondary transition-all hover:bg-surface-800 hover:text-content-primary"
             >
               Check availability
             </button>
             <button
-              onClick={() => navigate("/trips")}
-              className="rounded-md px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900"
+              onClick={save}
+              disabled={saving}
+              className="flex items-center gap-2 rounded-full bg-brand-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 disabled:opacity-50"
             >
-              Discard
+              {saving && <Loader2 size={14} className="animate-spin" />}
+              <span>{saving ? "Saving…" : isEdit ? "Save changes" : "Create trip"}</span>
             </button>
           </div>
         </div>
@@ -299,3 +315,9 @@ export default function TripForm() {
     </div>
   );
 }
+
+const inputStyle =
+  "w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15";
+
+const selectStyle =
+  "w-full rounded-2xl border border-surface-800 bg-surface px-4 py-3 text-sm text-content-primary outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/15";

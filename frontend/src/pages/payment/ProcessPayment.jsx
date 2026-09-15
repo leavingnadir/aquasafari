@@ -1,31 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { processPayment } from "../../api/paymentApi";
 import PaymentReceipt from "./PaymentReceipt";
-import { CreditCard, ShieldCheck, Lock, ArrowRight, AlertCircle, RefreshCw } from "lucide-react";
+import { CreditCard, ShieldCheck, Lock, ArrowRight, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const METHODS = [
-  { value: "CARD", label: "Credit / Debit Card" },
+  { value: "CREDIT_CARD", label: "Credit / Debit Card" },
   { value: "BANK_TRANSFER", label: "Bank Transfer" },
   { value: "MOBILE_WALLET", label: "Mobile Wallet" },
 ];
 
 /**
  * Checkout page for use case "Process Online Payment".
- * In a real deployment, step 1 (redirect to secure gateway) would hand off to
- * the gateway's hosted page; here we render an in-app form that POSTs to
- * /api/payments/process and simulates that redirect for demo purposes.
+ * Automatically reads the bookingId from the URL query parameters and locks critical fields.
  */
-export default function ProcessPayment({ bookingId: initialBookingId, amount: initialAmount }) {
+export default function ProcessPayment() {
   usePageTitle("Process Payment");
+  const [searchParams] = useSearchParams();
+  
+  // Extract bookingId and optional amount from URL search params
+  const urlBookingId = searchParams.get("bookingId") || "";
+  const urlAmount = searchParams.get("amount") || "5000.00"; // Fallback or dynamic value
+
   const [form, setForm] = useState({
-    bookingId: initialBookingId ?? "",
-    amount: initialAmount ?? "",
+    bookingId: urlBookingId,
+    amount: urlAmount,
     paymentMethod: "CARD",
     cardNumber: "",
     cardHolderName: "",
     expiryDate: "",
+    cvv: "",
   });
+
   const [status, setStatus] = useState("idle"); // idle | submitting | success | declined | error
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -36,8 +43,23 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setStatus("submitting");
     setErrorMessage("");
+
+    // Frontend validation to test entering incorrect card details
+    if (form.paymentMethod === "CARD") {
+      if (!form.cardNumber || form.cardNumber.replace(/\s/g, "").length < 16) {
+        setErrorMessage("Test Validation Failed: Please enter a valid 16-digit card number.");
+        setStatus("error");
+        return;
+      }
+      if (!form.expiryDate || !form.expiryDate.includes("/")) {
+        setErrorMessage("Test Validation Failed: Invalid expiry date format (use MM/YY).");
+        setStatus("error");
+        return;
+      }
+    }
+
+    setStatus("submitting");
     try {
       const response = await processPayment({
         bookingId: Number(form.bookingId),
@@ -55,7 +77,7 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
         setResult(err.body);
         setStatus("declined");
       } else {
-        setErrorMessage(err.message || "Something went wrong. Please try again.");
+        setErrorMessage(err.message || "Payment declined or invalid details entered. Please try again.");
         setStatus("error");
       }
     }
@@ -64,6 +86,7 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
   function retryWithNewMethod() {
     setStatus("idle");
     setResult(null);
+    setErrorMessage("");
   }
 
   if (status === "success" && result) {
@@ -88,7 +111,7 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
             Complete your safari payment
           </h1>
           <p className="mt-2 text-sm text-content-secondary">
-            Fast, encrypted processing for your upcoming aquatic adventure.
+            Encrypted processing for your reserved aquatic adventure.
           </p>
         </div>
 
@@ -99,7 +122,7 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
             <div className="flex-1">
               <p className="font-semibold text-rose-200">Transaction declined</p>
               <p className="mt-0.5 text-rose-300/90">
-                {result?.reason || "Your payment could not be processed."} Please try a different payment method.
+                {result?.reason || "Your payment could not be processed."} Please try a different payment method or correct your card info.
               </p>
               <button
                 type="button"
@@ -131,30 +154,35 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
 
           <div className="relative z-10 space-y-6">
             
-            {/* Booking & Amount Grid */}
+            {/* Locked Booking & Amount Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <Field label="Booking Ref.">
-                <input
-                  required
-                  type="number"
-                  min="1"
-                  value={form.bookingId}
-                  onChange={(e) => update("bookingId", e.target.value)}
-                  className="input-field"
-                  placeholder="e.g. 1024"
-                />
+              <Field label="Booking Ref. (Automated)">
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-400">
+                    <Lock size={14} />
+                  </span>
+                  <input
+                    readOnly
+                    type="text"
+                    value={form.bookingId}
+                    className="input-field pl-10 cursor-not-allowed opacity-80 font-mono"
+                    placeholder="No booking selected"
+                  />
+                </div>
               </Field>
-              <Field label="Amount (LKR)">
-                <input
-                  required
-                  type="number"
-                  min="1"
-                  step="0.01"
-                  value={form.amount}
-                  onChange={(e) => update("amount", e.target.value)}
-                  className="input-field"
-                  placeholder="e.g. 15000"
-                />
+
+              <Field label="Locked Total Amount (LKR)">
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-400">
+                    <Lock size={14} />
+                  </span>
+                  <input
+                    readOnly
+                    type="text"
+                    value={form.amount}
+                    className="input-field pl-10 cursor-not-allowed opacity-80 font-mono font-semibold text-brand-400"
+                  />
+                </div>
               </Field>
             </div>
 
@@ -176,9 +204,11 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
             {/* Conditional Card Details */}
             {form.paymentMethod === "CARD" && (
               <div className="space-y-5 rounded-2xl border border-surface-800 bg-surface p-6">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-500">
-                  <CreditCard size={15} />
-                  <span>Card Information</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-500">
+                    <CreditCard size={15} />
+                    <span>Card Information</span>
+                  </div>
                 </div>
 
                 <Field label="Card Holder Name">
@@ -202,7 +232,7 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
                       value={form.cardNumber}
                       onChange={(e) => update("cardNumber", e.target.value)}
                       className="input-field font-mono"
-                      placeholder="4111 1111 1111 1111"
+                      placeholder="4111 1111 1111 1111 (16 digits)"
                     />
                   </Field>
                   <Field label="Expiry">
@@ -226,7 +256,10 @@ export default function ProcessPayment({ bookingId: initialBookingId, amount: in
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-brand-600 active:scale-98 disabled:opacity-60 shadow-lg shadow-brand-500/25"
             >
               {status === "submitting" ? (
-                <span>Processing Secure Payment…</span>
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Processing Secure Payment…</span>
+                </>
               ) : (
                 <>
                   <span>Pay & Confirm Booking</span>
