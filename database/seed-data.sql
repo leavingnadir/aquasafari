@@ -349,6 +349,8 @@ UPDATE [USER]
 SET PasswordHash = '123'
 WHERE Email = 'guide@aquasafari.lk';
 
+USE AquaSafariDB;
+GO
 SELECT * FROM [USER];
 
 --- =============================================

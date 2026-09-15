@@ -11,7 +11,6 @@ Through the system, **customers** can search for trips, make bookings, pay onlin
 **Group ID:** 2026-Y2-S1-MLB-B03G2-03
 **Module:** SE2030 – Software Engineering | BSc (Hons) in Information Technology, SLIIT
 
----
 
 ## 🛠️ Technologies Used
 
@@ -37,7 +36,6 @@ Through the system, **customers** can search for trips, make bookings, pay onlin
 - Git & GitHub (version control)
 - SQL Server Management Studio (SSMS)
 
----
 
 ## 📁 Project Structure
 
@@ -46,8 +44,6 @@ aquasafari/
 ├── frontend/       # React + Vite app
 └── backend/        # Spring Boot app
 ```
-
----
 
 ## ⚙️ Spring Boot Project Configuration
 
@@ -80,7 +76,6 @@ aquasafari/
 
 Click **Generate → Download ZIP**, then unzip it into the `backend/` folder of the repo.
 
----
 
 ## 🗄️ Database Setup (Microsoft SQL Server — local instance, `localhost`)
 
@@ -97,7 +92,6 @@ database/
 └── README.md                          
 ```
 
----
 
 ## ☕ Backend Setup
 
@@ -119,7 +113,6 @@ mvnw.cmd spring-boot:run
 
 Backend runs at: **http://localhost:8080** (or the port set in `application.properties`)
 
----
 
 ## 🎨 Frontend Setup
 
@@ -135,8 +128,6 @@ npm run dev
 
 Frontend runs at: **http://localhost:5173**
 
----
-
 ## 🧰 Quick Git Reference
 
 ```bash
@@ -147,24 +138,27 @@ git config --global user.email "you@my.sliit.lk"
 git clone <repo-url>
 cd aquasafari
 
-# Create and switch to your feature branch
-git checkout dev
-git pull origin dev
-git checkout -b feature/payment-management
-
 # Daily workflow
 git add .
-git commit -m "feat(payment): describe your change"
-git push origin feature/payment-management
+git commit -m "describe your change"
+git push origin main
 
 # Keep your branch up to date
-git checkout dev
-git pull origin dev
-git checkout feature/payment-management
-git merge dev
+git checkout main
+git pull origin main
 ```
 
----
+## Test Credentials
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Administrator** | `admin@aquasafari.lk` | `password` |
+| **Boat Operator** | `operator@aquasafari.lk` | `123` |
+| **Tour Guide** | `guide@aquasafari.lk` | `123` |
+| **Customer** | `customer1@gmail.com` | `123` |
+
+Use the credentials listed above to log into the respective role-based dashboards in the Aqua Safari application.
+
 
 ## 👨‍💻 Contributors
 
