@@ -35,6 +35,12 @@ import Login from "./pages/usernadmin/Login.jsx";
 import Register from "./pages/usernadmin/Register.jsx";
 import StaffManagement from "./pages/usernadmin/StaffManagement.jsx";
 
+// Trip module
+import TripList from "./pages/trip/TripList.jsx";
+import TripForm from "./pages/trip/TripForm.jsx";
+import AssignBoat from "./pages/trip/AssignBoat.jsx";
+import PublicTrips from "./pages/trip/PublicTrips.jsx";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -84,6 +90,48 @@ export default function App() {
                 </ProtectedRoute>
               } 
             />
+
+            {/* Trip module
+                Use case: Administrator is the primary actor who schedules trips;
+                Boat Operator and Tour Guide are secondary actors, so they can view
+                the schedule (their own assignments) but not create/edit/delete. */}
+            <Route
+              path="/trips"
+              element={
+                <ProtectedRoute roles={["ADMIN", "ADMINISTRATOR", "BOAT_OPERATOR", "TOUR_GUIDE"]}>
+                  <TripList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trips/new"
+              element={
+                <ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}>
+                  <TripForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trips/:id/edit"
+              element={
+                <ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}>
+                  <TripForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trips/:id/assign"
+              element={
+                <ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}>
+                  <AssignBoat />
+                </ProtectedRoute>
+              }
+            />
+            {/* Public trip listing - customers browse without logging in.
+                NOTE: this may overlap with the Booking module's /search page
+                (SearchTrips.jsx below). Agree with that teammate on a single
+                trip-listing route before shipping both. */}
+            <Route path="/safaris" element={<PublicTrips />} />
 
             {/* Booking module */}
             <Route path="/search" element={<SearchTrips />} />
