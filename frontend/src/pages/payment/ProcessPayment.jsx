@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { processPayment } from "../../api/paymentApi";
+import axiosClient from "../../api/axiosClient"; 
 import PaymentReceipt from "./PaymentReceipt";
 import { CreditCard, ShieldCheck, Lock, ArrowRight, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -11,31 +12,63 @@ const METHODS = [
   { value: "MOBILE_WALLET", label: "Mobile Wallet" },
 ];
 
-/**
- * Checkout page for use case "Process Online Payment".
- * Automatically reads the bookingId from the URL query parameters and locks critical fields.
- */
 export default function ProcessPayment() {
   usePageTitle("Process Payment");
   const [searchParams] = useSearchParams();
   
-  // Extract bookingId and optional amount from URL search params
   const urlBookingId = searchParams.get("bookingId") || "";
-  const urlAmount = searchParams.get("amount") || "5000.00"; // Fallback or dynamic value
 
   const [form, setForm] = useState({
     bookingId: urlBookingId,
-    amount: urlAmount,
-    paymentMethod: "CARD",
+    amount: "Loading...", // Initial placeholder while fetching
+    paymentMethod: "CREDIT_CARD",
     cardNumber: "",
     cardHolderName: "",
     expiryDate: "",
     cvv: "",
   });
 
-  const [status, setStatus] = useState("idle"); // idle | submitting | success | declined | error
+  const [status, setStatus] = useState("idle"); // idle | loading | submitting | success | declined | error
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Dynamically load the correct price from URL or backend booking details
+  useEffect(() => {
+    if (!urlBookingId) return;
+
+    // 1. Check if the amount was explicitly passed in the URL query string first
+    const urlAmount = searchParams.get("amount");
+    if (urlAmount) {
+      setForm((prev) => ({
+        ...prev,
+        amount: Number(urlAmount).toFixed(2),
+      }));
+      return;
+    }
+
+    // 2. Otherwise, fetch it dynamically via the booking API endpoint
+    async function fetchBookingDetails() {
+      try {
+        const response = await axiosClient.get(`/bookings/${urlBookingId}`);
+        const bookingData = response.data;
+        
+        console.log("Fetched Booking Data from Backend:", bookingData);
+        
+        // Extract exact price based on common property naming conventions
+        const exactAmount = bookingData.totalPrice || bookingData.price || bookingData.trip?.price || "5000.00";
+        
+        setForm((prev) => ({
+          ...prev,
+          amount: Number(exactAmount).toFixed(2),
+        }));
+      } catch (err) {
+        console.error("Failed to fetch booking details, falling back to default", err);
+        setForm((prev) => ({ ...prev, amount: "5000.00" }));
+      }
+    }
+
+    fetchBookingDetails();
+  }, [urlBookingId, searchParams]);
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -45,8 +78,7 @@ export default function ProcessPayment() {
     e.preventDefault();
     setErrorMessage("");
 
-    // Frontend validation to test entering incorrect card details
-    if (form.paymentMethod === "CARD") {
+    if (form.paymentMethod === "CREDIT_CARD") {
       if (!form.cardNumber || form.cardNumber.replace(/\s/g, "").length < 16) {
         setErrorMessage("Test Validation Failed: Please enter a valid 16-digit card number.");
         setStatus("error");
@@ -73,7 +105,6 @@ export default function ProcessPayment() {
       setStatus("success");
     } catch (err) {
       if (err.status === 402) {
-        // Extension 3a: transaction declined by gateway
         setResult(err.body);
         setStatus("declined");
       } else {
@@ -149,12 +180,10 @@ export default function ProcessPayment() {
           onSubmit={handleSubmit}
           className="relative overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 p-8 sm:p-10 shadow-2xl"
         >
-          {/* Subtle background glow */}
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 space-y-6">
             
-            {/* Locked Booking & Amount Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Booking Ref. (Automated)">
                 <div className="relative">
@@ -186,7 +215,6 @@ export default function ProcessPayment() {
               </Field>
             </div>
 
-            {/* Payment Method Selector */}
             <Field label="Payment Method">
               <select
                 value={form.paymentMethod}
@@ -201,8 +229,7 @@ export default function ProcessPayment() {
               </select>
             </Field>
 
-            {/* Conditional Card Details */}
-            {form.paymentMethod === "CARD" && (
+            {form.paymentMethod === "CREDIT_CARD" && (
               <div className="space-y-5 rounded-2xl border border-surface-800 bg-surface p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand-500">
@@ -249,10 +276,9 @@ export default function ProcessPayment() {
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
-              disabled={status === "submitting"}
+              disabled={status === "submitting" || form.amount === "Loading..."}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-brand-600 active:scale-98 disabled:opacity-60 shadow-lg shadow-brand-500/25"
             >
               {status === "submitting" ? (
@@ -268,7 +294,6 @@ export default function ProcessPayment() {
               )}
             </button>
 
-            {/* Security Guarantee Note */}
             <div className="flex items-center justify-center gap-2 pt-2 text-center text-xs text-content-muted">
               <ShieldCheck size={14} className="text-brand-500" />
               <span>Payments are 256-bit SSL encrypted. Card info is never stored.</span>
@@ -278,7 +303,6 @@ export default function ProcessPayment() {
         </form>
       </div>
 
-      {/* Embedded CSS for custom styling inputs matching your theme */}
       <style>{`
         .input-field {
           width: 100%;

@@ -11,8 +11,8 @@ const axiosClient = axios.create({
 // Automatically inject the Authorization token into requests (crucial for new tabs/windows)
 axiosClient.interceptors.request.use(
   (config) => {
-    // Check all standard keys where tokens or user sessions are commonly saved
-    const possibleKeys = ["user", "auth", "currentUser", "token", "accessToken"];
+    // Check all storage keys where tokens or user sessions are commonly saved, including aquasafari_auth
+    const possibleKeys = ["aquasafari_auth", "user", "auth", "currentUser", "token", "accessToken"];
     let token = null;
 
     for (const key of possibleKeys) {
