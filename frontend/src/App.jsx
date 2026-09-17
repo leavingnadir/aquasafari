@@ -41,6 +41,8 @@ import TripForm from "./pages/trip/TripForm.jsx";
 import AssignBoat from "./pages/trip/AssignBoat.jsx";
 import PublicTrips from "./pages/trip/PublicTrips.jsx";
 
+import { SubmitFeedbackPage, MyFeedbackPage, ManageFeedbackPage } from "./pages/feedback";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -176,6 +178,10 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/destinations" element={<DestinationsPage />} />
             <Route path="/boats" element={<PublicBoatsPage />} />
+
+            <Route path="/feedback/submit" element={<SubmitFeedbackPage />} />
+            <Route path="/feedback/my-reviews" element={<MyFeedbackPage />} />
+            <Route path="/admin/feedback" element={<ManageFeedbackPage />} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<ComingSoon title="Page" />} />
