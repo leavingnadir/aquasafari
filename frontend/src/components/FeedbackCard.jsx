@@ -6,14 +6,14 @@ import StarRating from "./StarRating";
  */
 export default function FeedbackCard({ feedback, onEdit, onDelete, showCustomer = true }) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-5">
+    <article className="rounded-xl border border-content-muted/20 bg-surface p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <StarRating value={feedback.rating} readOnly size="sm" />
-          <p className="mt-2 text-sm font-medium text-slate-900">
+          <p className="mt-2 text-sm font-medium text-content-primary">
             {showCustomer ? feedback.customerName : feedback.route}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-content-muted">
             {showCustomer && feedback.route ? `${feedback.route} · ` : ""}
             {feedback.tripDate ? formatDate(feedback.tripDate) : `Booking #${feedback.bookingId}`}
           </p>
@@ -25,7 +25,7 @@ export default function FeedbackCard({ feedback, onEdit, onDelete, showCustomer 
               <button
                 type="button"
                 onClick={() => onEdit(feedback)}
-                className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
+                className="rounded-lg border border-content-muted/30 px-3 py-1.5 text-xs font-medium text-content-primary hover:bg-content-muted/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F05C35]"
               >
                 Edit
               </button>
@@ -34,7 +34,7 @@ export default function FeedbackCard({ feedback, onEdit, onDelete, showCustomer 
               <button
                 type="button"
                 onClick={() => onDelete(feedback)}
-                className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                className="rounded-lg border border-red-500/30 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
               >
                 Remove
               </button>
@@ -44,9 +44,9 @@ export default function FeedbackCard({ feedback, onEdit, onDelete, showCustomer 
       </div>
 
       {feedback.comment ? (
-        <p className="mt-3 max-w-prose text-sm leading-relaxed text-slate-700">{feedback.comment}</p>
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-content-primary">{feedback.comment}</p>
       ) : (
-        <p className="mt-3 text-sm italic text-slate-400">Rating only, no written review.</p>
+        <p className="mt-3 text-sm italic text-content-muted">Rating only, no written review.</p>
       )}
     </article>
   );

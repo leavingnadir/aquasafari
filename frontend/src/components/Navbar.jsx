@@ -7,6 +7,7 @@ const LINKS = [
   { to: "/boats", label: "Our Fleet"},
   { to: "/safaris", label: "Trips"},
   { to: "/destinations", label: "Destinations"},
+  { to: "/feedback/submit", label: "Feedback"},
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];

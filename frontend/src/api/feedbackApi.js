@@ -1,15 +1,8 @@
+import axiosClient from "./axiosClient";
+
 /**
- * Feedback Management API client.
- *
- * Plain fetch, no axios, so this module adds nothing to package.json that the other
- * five modules have to merge. Set VITE_API_BASE_URL in frontend/.env to point at a
- * different backend; it falls back to the shared localhost:8080.
+ * Feedback Management API client using the shared axiosClient.
  */
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
-const FEEDBACK_URL = `${BASE_URL}/api/feedback`;
-
-/** Error carrying the backend's message plus per-field messages when validation failed. */
 export class ApiError extends Error {
   constructor(message, { status, fieldErrors, flaggedWords } = {}) {
     super(message);
@@ -20,29 +13,25 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, options = {}) {
-  let response;
+// Helper to handle Axios errors uniformly
+async function handleRequest(requestPromise) {
   try {
-    response = await fetch(`${FEEDBACK_URL}${path}`, {
-      headers: { "Content-Type": "application/json" },
-      ...options,
-    });
-  } catch {
-    throw new ApiError("Can't reach the server. Check that the backend is running on port 8080.");
+    const response = await requestPromise;
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const data = error.response.data;
+      throw new ApiError(data?.message ?? "Something went wrong. Try again.", {
+        status: error.response.status,
+        fieldErrors: data?.fieldErrors,
+        flaggedWords: data?.flaggedWords,
+      });
+    } else if (error.request) {
+      throw new ApiError("Can't reach the server. Check that the backend is running on port 8080.");
+    } else {
+      throw new ApiError(error.message);
+    }
   }
-
-  if (response.status === 204) return null;
-
-  const body = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new ApiError(body?.message ?? "Something went wrong. Try again.", {
-      status: response.status,
-      fieldErrors: body?.fieldErrors,
-      flaggedWords: body?.flaggedWords,
-    });
-  }
-  return body;
 }
 
 function query(params) {
@@ -55,35 +44,26 @@ function query(params) {
 }
 
 export const feedbackApi = {
-  /** Completed trip history, each row flagged reviewable or not. */
-  reviewableTrips: (customerId) => request(`/reviewable/${customerId}`),
+  reviewableTrips: (customerId) => handleRequest(axiosClient.get(`/feedback/reviewable/${customerId}`)),
 
   submit: ({ bookingId, customerId, rating, comment }) =>
-    request("", {
-      method: "POST",
-      body: JSON.stringify({ bookingId, customerId, rating, comment }),
-    }),
+    handleRequest(axiosClient.post("/feedback", { bookingId, customerId, rating, comment })),
 
   update: (feedbackId, { customerId, rating, comment }) =>
-    request(`/${feedbackId}`, {
-      method: "PUT",
-      body: JSON.stringify({ customerId, rating, comment }),
-    }),
+    handleRequest(axiosClient.put(`/feedback/${feedbackId}`, { customerId, rating, comment })),
 
-  /** Pass customerId to delete your own review; omit it for an administrator delete. */
   remove: (feedbackId, customerId) =>
-    request(`/${feedbackId}${query({ customerId })}`, { method: "DELETE" }),
+    handleRequest(axiosClient.delete(`/feedback/${feedbackId}${query({ customerId })}`)),
 
-  getOne: (feedbackId) => request(`/${feedbackId}`),
+  getOne: (feedbackId) => handleRequest(axiosClient.get(`/feedback/${feedbackId}`)),
 
-  byCustomer: (customerId) => request(`/customer/${customerId}`),
+  byCustomer: (customerId) => handleRequest(axiosClient.get(`/feedback/customer/${customerId}`)),
 
-  byTrip: (tripId) => request(`/trip/${tripId}`),
+  byTrip: (tripId) => handleRequest(axiosClient.get(`/feedback/trip/${tripId}`)),
 
-  tripSummary: (tripId) => request(`/trip/${tripId}/summary`),
+  tripSummary: (tripId) => handleRequest(axiosClient.get(`/feedback/trip/${tripId}/summary`)),
 
-  /** Admin list. All filters optional: { tripId, customerId, minRating, search }. */
-  search: (filters = {}) => request(query(filters)),
+  search: (filters = {}) => handleRequest(axiosClient.get(`/feedback${query(filters)}`)),
 };
 
 export default feedbackApi;

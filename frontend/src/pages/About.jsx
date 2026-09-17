@@ -1,8 +1,27 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import usePageTitle from "../hooks/usePageTitle";
+import feedbackApi from "../api/feedbackApi";
+import FeedbackCard from "../components/FeedbackCard";
 
 export default function About() {
   usePageTitle("About Us");
+
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadTestimonials() {
+      try {
+        const data = await feedbackApi.search({});
+        setFeedbacks(data);
+      } catch (err) {
+        console.error("Failed to load testimonials", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTestimonials();
+  }, []);
 
   return (
     // pt-24 pushes the content down so it doesn't hide behind a fixed/sticky navbar
@@ -40,7 +59,7 @@ export default function About() {
 
         {/* Why Choose Us Section */}
         <h2 className="text-2xl font-bold text-content-primary mt-10 mb-4 font-display">Why Choose Us?</h2>
-        <ul className="space-y-3 text-content-secondary">
+        <ul className="space-y-3 text-content-secondary mb-12">
           <li className="flex items-center space-x-3">
             <span className="w-2 h-2 bg-brand-500 rounded-full"></span>
             <span>Expertly trained tour guides and licensed boat operators.</span>
@@ -58,6 +77,26 @@ export default function About() {
             <span>Dedicated customer support ready to assist with your travel plans.</span>
           </li>
         </ul>
+
+        {/* Testimonials / Customer Reviews Section */}
+        <div className="border-t border-surface-800 pt-10">
+          <div className="mb-6">
+            <p className="eyebrow mb-1">Testimonials</p>
+            <h2 className="text-2xl font-bold text-content-primary font-display">What Our Travelers Say</h2>
+          </div>
+
+          {loading ? (
+            <p className="text-sm text-content-secondary">Loading reviews…</p>
+          ) : feedbacks.length === 0 ? (
+            <p className="text-sm text-content-secondary">No traveler reviews published yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {feedbacks.map((item) => (
+                <FeedbackCard key={item.feedbackId || item.id} feedback={item} />
+              ))}
+            </div>
+          )}
+        </div>
 
       </div>
     </div>

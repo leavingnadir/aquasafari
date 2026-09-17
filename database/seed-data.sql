@@ -379,3 +379,107 @@ ALTER TABLE BOOKING ADD
 GO
 SELECT * FROM [BOOKING];
 --- =============================================
+
+USE AquaSafariDB;
+GO
+
+-- 1. Update Trip #2's date to a past date (e.g., September 10, 2026) so it is no longer pending/future
+UPDATE [TRIP] 
+SET TripDate = '2026-09-10' 
+WHERE TripID = 2;
+GO
+
+-- 2. Update the booking status for customer1 (BookingID 2) to 'CONFIRMED'
+UPDATE [BOOKING] 
+SET BookingStatus = 'CONFIRMED' 
+WHERE BookingID = 2 AND CustomerID = 5;
+GO
+
+-- 3. Ensure the payment for BookingID 2 is verified and marked 'PAID' (assigned to accountant UserID 4)
+UPDATE [PAYMENT] 
+SET PaymentStatus = 'PAID', AccountantID = 4 
+WHERE BookingID = 2;
+GO
+
+-- 4. Delete any existing feedback for BookingID 2 just in case to ensure it's not marked "Already reviewed"
+DELETE FROM [FEEDBACK] 
+WHERE BookingID = 2 AND CustomerID = 5;
+GO
+
+--==================================================================
+--==================================================================
+USE AquaSafariDB;
+GO
+
+-- =========================================================================
+-- 1. MORE USERS (Additional Customers for testing feedback & reviews)
+-- =========================================================================
+INSERT INTO [USER] (Email, Phone, PasswordHash, FirstName, LastName, user_type, RegistrationDate)
+VALUES
+    ('customer3@gmail.com', '0777234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Dilshan', 'Madushanka', 'CUSTOMER', '2026-08-20'),
+    ('customer4@gmail.com', '0778234567', '$2b$12$rE4ucR7chvTBDD2uia0PhOu3WAG5poW8W13ee5ZKsRB1WA5lS0hEe', 'Piyumi', 'Hansamali', 'CUSTOMER', '2026-08-25');
+GO
+
+-- =========================================================================
+-- 3. MORE TRIPS (Mix of past trips for reviews and future trips for bookings)
+-- =========================================================================
+-- Note: Assuming OperatorID = 2 and GuideID = 3 exist from your initial setup
+INSERT INTO [TRIP] (BoatID, OperatorID, GuideID, TripDate, DepartureTime, Duration, Route, Price)
+VALUES
+    -- Past Trips (Crucial so customers can test submitting/editing/deleting feedback instantly)
+    (4, 2, 3, '2026-09-05', '09:00:00', '2 Hours', 'Mirissa Turtle Snorkeling', 4500.00),
+    (5, 2, 3, '2026-09-08', '15:30:00', '3 Hours', 'Sunset Coastal Cruise', 6000.00),
+    
+    -- Future Trips (Crucial for testing active booking & checkout workflows)
+    (1, 2, 3, '2026-09-28', '08:00:00', '3 Hours', 'Coral Reef & Lagoon Tour', 5000.00),
+    (6, 2, 3, '2026-09-30', '10:00:00', '4 Hours', 'Private Island Day Out', 12000.00);
+GO
+
+-- =========================================================================
+-- 4. MORE BOOKINGS 
+-- =========================================================================
+INSERT INTO [BOOKING] (TripID, CustomerID, BookingDate, PassengerCount, BookingStatus, ReservationExpiresAt)
+VALUES
+    -- Past bookings linked to past trips (Ready for reviews)
+    (4, 5, '2026-09-01', 2, 'CONFIRMED', DATEADD(day, 1, GETDATE())),
+    (5, 6, '2026-09-04', 2, 'CONFIRMED', DATEADD(day, 1, GETDATE())),
+    (4, 7, '2026-09-03', 4, 'CONFIRMED', DATEADD(day, 1, GETDATE())),
+
+    -- Future bookings (For checkout / management views)
+    (6, 8, '2026-09-15', 3, 'PENDING', DATEADD(hour, 2, GETDATE()));
+GO
+
+-- =========================================================================
+-- 5. MORE PAYMENTS (Verified by Accountant UserID 4)
+-- =========================================================================
+INSERT INTO [PAYMENT] (BookingID, AccountantID, Amount, PaymentDate, PaymentMethod, PaymentStatus)
+VALUES
+    (4, 4, 9000.00, '2026-09-01 10:30:00', 'CREDIT_CARD', 'PAID'),
+    (5, 4, 12000.00, '2026-09-04 14:15:00', 'MOBILE_WALLET', 'PAID'),
+    (6, 4, 18000.00, '2026-09-03 11:00:00', 'BANK_TRANSFER', 'PAID'),
+    (7, NULL, 36000.00, GETDATE(), 'CREDIT_CARD', 'PENDING');
+GO
+
+-- =========================================================================
+-- 6. MORE FEEDBACK (Populates the About Us page testimonials & admin views)
+-- =========================================================================
+INSERT INTO [FEEDBACK] (BookingID, CustomerID, Rating, Comment)
+VALUES
+    (4, 5, 5, 'Seeing the sea turtles up close was an unforgettable experience. Highly professional crew!'),
+    (5, 6, 5, 'The sunset view over the horizon was absolute magic. Great boat and very friendly guide.'),
+    (6, 7, 4, 'Very well-organized trip. The safety briefing was clear and the equipment provided was top tier.');
+GO
+
+-- =========================================================================
+-- 7. MORE SUPPORT TICKETS & NOTIFICATIONS
+-- =========================================================================
+INSERT INTO [SUPPORT_REQUEST] (CustomerID, AdminID, Subject, Message)
+VALUES
+    (6, 1, 'Dietary Requirements', 'Do you provide vegetarian options during the coastal cruise?'),
+    (7, NULL, 'Private Charter Request', 'Can we book the entire Luxury Cruiser for a family event next month?');
+
+INSERT INTO [NOTIFICATION] (UserID, Message, CreatedAt)
+VALUES
+    (5, 'Your review has been successfully published to the Aqua Safari community.', GETDATE()),
+    (6, 'Your payment of LKR 12,000 has been verified by the accounts team.', GETDATE());
+GO

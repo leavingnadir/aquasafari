@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Users, UserCheck, Ship, CreditCard, Compass, ArrowRight, ShieldCheck, FileText, ExternalLink } from "lucide-react";
+import { Users, UserCheck, Ship, CreditCard, Compass, ArrowRight, ShieldCheck, FileText, ExternalLink, MessageSquare } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -46,13 +46,22 @@ const ADMIN_SECTIONS = [
     color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
   },
   {
+    title: "Feedback Management",
+    description: "Review and manage user ratings, comments, and system feedback.",
+    icon: MessageSquare,
+    to: "/admin/feedback",
+    badge: "Support",
+    color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+  }
+  /*
+  {
     title: "Payment History",
     description: "Review comprehensive historical invoice logs and payment statuses.",
     icon: FileText,
     to: "/payment/history",
     badge: "Reports",
     color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
-  },
+  },*/
 ];
 
 export default function AdminDashboard() {

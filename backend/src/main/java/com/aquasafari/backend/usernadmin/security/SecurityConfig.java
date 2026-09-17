@@ -73,14 +73,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/bookings", "/api/bookings/**").permitAll()
                         .requestMatchers("/api/payments", "/api/payments/**").permitAll()
                         
-                        // 2. Specific Admin module rules (put more specific routes BEFORE general wildcard rules)
-                        .requestMatchers("/api/admin/customers", "/api/admin/customers/**").permitAll() // Change to .hasAuthority("ROLE_ADMIN") once verified working
+                        // 2. Feedback module routes (requires authentication token)
+                        .requestMatchers("/api/feedback/**").authenticated()
+
+                        // 3. Specific Admin module rules
+                        .requestMatchers("/api/admin/customers", "/api/admin/customers/**").permitAll() 
                         .requestMatchers("/api/admin/staff/**").hasAuthority("ROLE_ADMIN")
 
-                        // 3. Catch-all for remaining admin routes
+                        // 4. Catch-all for remaining admin routes
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
 
-                        // 4. Everything else needs a valid token
+                        // 5. Everything else needs a valid token
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

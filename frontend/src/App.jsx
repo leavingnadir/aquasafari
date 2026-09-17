@@ -41,7 +41,9 @@ import TripForm from "./pages/trip/TripForm.jsx";
 import AssignBoat from "./pages/trip/AssignBoat.jsx";
 import PublicTrips from "./pages/trip/PublicTrips.jsx";
 
-import { SubmitFeedbackPage, MyFeedbackPage, ManageFeedbackPage } from "./pages/feedback";
+import SubmitFeedbackPage from "./pages/feedback/SubmitFeedbackPage.jsx";
+import MyFeedbackPage from "./pages/feedback/MyFeedbackPage.jsx";
+import ManageFeedbackPage from "./pages/feedback/ManageFeedbackPage.jsx";
 
 export default function App() {
   return (
@@ -181,7 +183,8 @@ export default function App() {
 
             <Route path="/feedback/submit" element={<SubmitFeedbackPage />} />
             <Route path="/feedback/my-reviews" element={<MyFeedbackPage />} />
-            <Route path="/admin/feedback" element={<ManageFeedbackPage />} />
+
+            <Route path="/admin/feedback" element={<ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}><ManageFeedbackPage /></ProtectedRoute>}/>
 
             {/* Catch-all 404 */}
             <Route path="*" element={<ComingSoon title="Page" />} />

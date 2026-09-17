@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import feedbackApi from "../../../api/feedbackApi";
-import StarRating from "./StarRating";
-import FeedbackCard from "./FeedbackCard";
+import StarRating from "../../StarRating";
+import FeedbackCard from "../../components/FeedbackCard";
 
 /**
  * Step 6 of the use case: the aggregated rating published on a trip details page.

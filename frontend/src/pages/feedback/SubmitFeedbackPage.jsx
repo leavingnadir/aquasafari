@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import feedbackApi from "../../api/feedbackApi";
 import { getCurrentUser } from "./currentUser";
-import FeedbackForm from "./components/FeedbackForm";
+import FeedbackForm from "../../components/FeedbackForm";
 
 /**
  * Main scenario steps 1-3: the customer opens their completed trip history, picks a
@@ -46,10 +46,12 @@ export default function SubmitFeedbackPage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10">
+    // Added pt-24 (or pt-28) to push the content down below the fixed navbar
+    <main className="mx-auto max-w-3xl px-4 pt-28 pb-10">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Your trips</h1>
-        <p className="mt-1 max-w-prose text-sm text-slate-600">
+        <p className="eyebrow mb-2">Customer Portal</p>
+        <h1 className="text-2xl font-bold tracking-tight text-content-primary">Your trips</h1>
+        <p className="mt-1 max-w-prose text-sm text-content-muted">
           Review a safari once it has finished and the payment is verified.
         </p>
       </header>
@@ -57,16 +59,16 @@ export default function SubmitFeedbackPage() {
       {confirmation && (
         <div
           role="status"
-          className="mb-6 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-900"
+          className="mb-6 rounded-xl border border-brand-500/30 bg-brand-500/10 px-4 py-3 text-sm text-content-primary"
         >
           {confirmation}
         </div>
       )}
 
-      {loading && <p className="text-sm text-slate-500">Loading your trips…</p>}
+      {loading && <p className="text-sm text-content-muted">Loading your trips…</p>}
 
       {error && !loading && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           <p>{error}</p>
           <button
             type="button"
@@ -79,8 +81,8 @@ export default function SubmitFeedbackPage() {
       )}
 
       {!loading && !error && trips.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center">
-          <p className="text-sm text-slate-600">
+        <div className="rounded-2xl border border-dashed border-content-muted/30 p-10 text-center">
+          <p className="text-sm text-content-muted">
             No trips here yet. Book a safari and it will show up once you have sailed it.
           </p>
         </div>
@@ -90,18 +92,18 @@ export default function SubmitFeedbackPage() {
         {trips.map((trip) => (
           <li
             key={trip.bookingId}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-5"
+            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-content-muted/20 bg-surface p-5 shadow-sm transition-shadow hover:shadow-md"
           >
             <div>
-              <p className="font-medium text-slate-900">{trip.route}</p>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="font-semibold text-content-primary">{trip.route}</p>
+              <p className="mt-1 text-sm text-content-muted">
                 {formatDate(trip.tripDate)}
                 {trip.departureTime ? ` · ${trip.departureTime.slice(0, 5)}` : ""}
                 {trip.duration ? ` · ${trip.duration}` : ""}
                 {trip.passengerCount ? ` · ${trip.passengerCount} passengers` : ""}
               </p>
               {!trip.reviewable && (
-                <p className="mt-2 inline-block rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
+                <p className="mt-2 inline-block rounded-full bg-content-muted/10 px-3 py-1 text-xs text-content-muted font-medium">
                   {trip.blockedReason}
                 </p>
               )}
@@ -111,7 +113,7 @@ export default function SubmitFeedbackPage() {
               type="button"
               disabled={!trip.reviewable}
               onClick={() => setSelected(trip)}
-              className="rounded-lg bg-teal-800 px-4 py-2 text-sm font-medium text-white hover:bg-teal-900 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2"
+              className="rounded-lg bg-[#F05C35] px-4 py-2 text-sm font-medium text-white hover:bg-[#d94d29] disabled:cursor-not-allowed disabled:bg-content-muted/20 disabled:text-content-muted transition-colors"
             >
               Write a review
             </button>

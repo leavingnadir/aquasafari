@@ -23,19 +23,6 @@ import java.util.List;
 
 /**
  * Feedback Management endpoints.
- *
- * POST   /api/feedback                          submit a review
- * PUT    /api/feedback/{id}                     edit your own review
- * DELETE /api/feedback/{id}[?customerId=]       remove a review (admin, or owner with customerId)
- * GET    /api/feedback/{id}                     one review
- * GET    /api/feedback                          all reviews, filters optional (admin screen)
- * GET    /api/feedback/customer/{customerId}    one customer's reviews
- * GET    /api/feedback/trip/{tripId}            reviews shown on a trip page
- * GET    /api/feedback/trip/{tripId}/summary    aggregated rating for a trip
- * GET    /api/feedback/reviewable/{customerId}  completed trip history with a reviewable flag
- *
- * CORS is handled centrally in com.aquasafari.backend.config.CorsConfig, so there is no
- * @CrossOrigin here for the group to keep in sync across six controllers.
  */
 @RestController
 @RequestMapping("/api/feedback")

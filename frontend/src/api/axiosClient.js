@@ -12,7 +12,15 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   (config) => {
     // Check all storage keys where tokens or user sessions are commonly saved, including aquasafari_auth
-    const possibleKeys = ["aquasafari_auth", "user", "auth", "currentUser", "token", "accessToken"];
+    const possibleKeys = [
+  "aquasafari_customer_id1", 
+  "aquasafari_auth", 
+  "user", 
+  "auth", 
+  "currentUser", 
+  "token", 
+  "accessToken"
+];
     let token = null;
 
     for (const key of possibleKeys) {
