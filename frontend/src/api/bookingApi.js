@@ -37,7 +37,7 @@ export async function getTripAvailability(tripId) {
 }
 
 /**
- * Book Trip.
+ * Book Trip. (Create)
  * @param {{customerId: number, tripId: number, passengerCount: number}} payload
  */
 export async function bookTrip(payload) {
@@ -49,6 +49,21 @@ export async function bookTrip(payload) {
   return handleResponse(response);
 }
 
+/**
+ * Confirm Booking. (Update)
+ * Normally triggered by the Payment module once payment succeeds;
+ * exposed here too so the Booking module's own CRUD set is complete.
+ */
+export async function confirmBooking(bookingId) {
+  const response = await fetch(`${BASE_URL}/${bookingId}/confirm`, {
+    method: "POST",
+  });
+  return handleResponse(response);
+}
+
+/**
+ * Cancel Booking. (Delete - soft, status change to CANCELLED)
+ */
 export async function cancelBooking(bookingId, customerId) {
   const params = new URLSearchParams({ customerId });
   const response = await fetch(`${BASE_URL}/${bookingId}/cancel?${params.toString()}`, {
@@ -57,11 +72,17 @@ export async function cancelBooking(bookingId, customerId) {
   return handleResponse(response);
 }
 
+/**
+ * View Bookings for a customer. (Read - list)
+ */
 export async function getBookingsForCustomer(customerId) {
   const response = await fetch(`${BASE_URL}/customer/${customerId}`);
   return handleResponse(response);
 }
 
+/**
+ * Get a single Booking. (Read - single)
+ */
 export async function getBooking(bookingId) {
   const response = await fetch(`${BASE_URL}/${bookingId}`);
   return handleResponse(response);

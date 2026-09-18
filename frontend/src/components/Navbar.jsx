@@ -23,6 +23,11 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const goToMyBookings = () => {
+    setOpen(false);
+    navigate("/booking/my-bookings");
+  };
+
   // Case-insensitive check to see if the logged-in user is an admin
   const userRole = user?.role?.toLowerCase() || "";
   const isAdmin = userRole === "administrator" || userRole === "admin" || user?.isAdmin === true;
@@ -78,10 +83,15 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-content-primary bg-surface-900/80 border border-surface-800 px-4 py-2 rounded-full shadow-inner">
+              {/* Account pill - click to go to My Bookings (works for both user & admin) */}
+              <button
+                onClick={goToMyBookings}
+                title="My bookings"
+                className="flex items-center gap-2 text-sm font-medium text-content-primary bg-surface-900/80 border border-surface-800 px-4 py-2 rounded-full shadow-inner transition-all duration-300 hover:border-brand-500/50 hover:bg-surface-800 active:scale-95"
+              >
                 <User size={15} className="text-brand-500" />
                 <span className="max-w-[120px] truncate">Hi, <strong className="text-brand-400 font-semibold">{displayName}</strong></span>
-              </div>
+              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-1.5 rounded-full border border-surface-800 bg-surface-900/80 px-4 py-2 text-sm font-semibold text-content-secondary transition-all duration-300 hover:border-rose-500/50 hover:text-rose-400 hover:bg-surface-800 active:scale-95"
@@ -144,10 +154,14 @@ export default function Navbar() {
               
               {isAuthenticated ? (
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-surface border border-surface-800 text-sm text-content-primary">
+                  {/* Account row - click to go to My Bookings (works for both user & admin) */}
+                  <button
+                    onClick={goToMyBookings}
+                    className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-surface border border-surface-800 text-sm text-content-primary transition-colors hover:border-brand-500/50 active:scale-95"
+                  >
                     <User size={16} className="text-brand-500 shrink-0" />
                     <span className="truncate">Logged in as <strong className="text-brand-400">{displayName}</strong></span>
-                  </div>
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="flex items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3 text-sm font-semibold text-rose-400 transition-transform active:scale-95"

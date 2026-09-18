@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getBookingsForCustomer, cancelBooking } from "../../api/bookingApi";
+import { getBookingsForCustomer, cancelBooking, confirmBooking } from "../../api/bookingApi";
 import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
-import { CalendarCheck, ShieldAlert, Loader2, Calendar, Users, XCircle } from "lucide-react";
+import { CalendarCheck, ShieldAlert, Loader2, Calendar, Users, XCircle, CheckCircle2 } from "lucide-react";
 
 const statusBadge = {
   PENDING: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -16,6 +16,7 @@ export default function MyBookings() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [cancellingId, setCancellingId] = useState(null);
+  const [confirmingId, setConfirmingId] = useState(null);
 
   const load = async (id) => {
     if (!id) return;
@@ -49,6 +50,19 @@ export default function MyBookings() {
     }
   };
 
+  const handleConfirm = async (bookingId) => {
+    setConfirmingId(bookingId);
+    setError("");
+    try {
+      await confirmBooking(bookingId);
+      await load(customerId);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setConfirmingId(null);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl px-4 pt-24 pb-12 font-body text-content-primary">
       <header className="mb-8 border-b border-surface-800 pb-6">
@@ -61,7 +75,7 @@ export default function MyBookings() {
           </h1>
         </div>
         <p className="mt-2 text-sm text-content-secondary">
-          View your reservations and cancel if plans change.
+          View your reservations, confirm, or cancel if plans change.
         </p>
       </header>
 
@@ -135,6 +149,19 @@ export default function MyBookings() {
               >
                 {booking.bookingStatus}
               </span>
+
+              {booking.bookingStatus === "PENDING" && (
+                <button
+                  onClick={() => handleConfirm(booking.bookingId)}
+                  disabled={confirmingId === booking.bookingId}
+                  className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-emerald-400 transition-all hover:bg-emerald-500/20 disabled:opacity-50"
+                >
+                  {confirmingId === booking.bookingId && <Loader2 size={13} className="animate-spin" />}
+                  <CheckCircle2 size={13} />
+                  <span>{confirmingId === booking.bookingId ? "Confirming…" : "Confirm"}</span>
+                </button>
+              )}
+
               {(booking.bookingStatus === "PENDING" || booking.bookingStatus === "CONFIRMED") && (
                 <button
                   onClick={() => handleCancel(booking.bookingId)}
