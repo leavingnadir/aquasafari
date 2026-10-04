@@ -19,7 +19,7 @@ import {
 import { Link } from "react-router-dom";
 import axiosClient from "../api/axiosClient";
 import usePageTitle from "../hooks/usePageTitle";
-
+import { useNavigate } from "react-router-dom";
 import {
   DESTINATIONS,
   ACTIVITIES,
@@ -148,56 +148,69 @@ function FeaturedBoats() {
 /* ------------------------------ Boat Card ----------------------------- */
 
 function BoatCard({ boat, onReserve }) {
+  const navigate = useNavigate();
+
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-surface-900 shadow-card border border-surface-800 transition-all duration-300 hover:border-brand-500/30">
+
       {/* --- Image Section with Seamless Gradient Fade --- */}
       <div className="relative h-64 w-full shrink-0 overflow-hidden">
         <img
-          src={boat.imageUrl || "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600"}
+          src={
+            boat.imageUrl ||
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600"
+          }
           alt={boat.name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        {/* The gradient fades from the image into the exact background color of the card body */}
+
         <div className="absolute inset-0 bg-gradient-to-t from-surface-900 via-surface-900/40 to-transparent" />
       </div>
 
       {/* --- Content Section --- */}
       <div className="relative z-10 flex grow flex-col px-6 pb-6 pt-2">
-        
-        {/* Title Row (Price removed from here) */}
+
+        {/* Title Row */}
         <div className="flex items-start justify-between gap-4">
           <h3 className="font-display text-2xl font-semibold tracking-tight text-content-primary">
             {boat.name}
           </h3>
         </div>
 
-        {/* Description Paragraph (Constructed from dynamic API data) */}
+        {/* Description */}
         <p className="mt-3 text-sm leading-relaxed text-content-secondary line-clamp-3">
-          Explore the open waters with this vessel. Designed for maximum comfort, accommodating up to {boat.passengerCapacity || boat.capacity || "10"} passengers.
+          Explore the open waters with this vessel. Designed for maximum
+          comfort, accommodating up to{" "}
+          {boat.passengerCapacity || boat.capacity || "10"} passengers.
         </p>
 
         {/* Pill Tags */}
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="flex items-center gap-1 rounded-full bg-surface-800 px-3 py-1.5 text-xs font-medium text-content-secondary">
-            <Star size={12} className="text-brand-500" fill="currentColor" />
+            <Star
+              size={12}
+              className="text-brand-500"
+              fill="currentColor"
+            />
             Top Rated
           </span>
+
           <span className="rounded-full bg-surface-800 px-3 py-1.5 text-xs font-medium text-content-secondary">
             {boat.boatType || "Safari Boat"}
           </span>
         </div>
 
-        {/* --- Price & Reserve Section --- */}
+        {/* --- Reserve Section --- */}
         <div className="mt-6 flex items-center justify-between gap-4 pt-4 border-t border-surface-800/60">
-          {/* Full CTA Button */}
-          <button 
-            onClick={() => onReserve && onReserve(boat)}
+
+          <button
+            onClick={() => navigate("/boats")}
             className="flex-1 rounded-2xl bg-brand-500 py-3.5 text-sm font-bold text-white transition-all hover:bg-brand-600 hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-500/20"
           >
             Reserve Now
           </button>
-        </div>
 
+        </div>
       </div>
     </article>
   );
