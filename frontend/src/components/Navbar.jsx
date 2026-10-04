@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Menu, X, Compass, ArrowRight, LogOut, User, LayoutDashboard } from "lucide-react";
-import { useAuth } from "../context/AuthContext.jsx";
+import { normalizeRole, useAuth } from "../context/AuthContext.jsx";
 
 const LINKS = [
   { to: "/boats", label: "Our Fleet"},
@@ -29,8 +29,8 @@ export default function Navbar() {
   };
 
   // Case-insensitive check to see if the logged-in user is an admin
-  const userRole = user?.role?.toLowerCase() || "";
-  const isAdmin = userRole === "administrator" || userRole === "admin" || user?.isAdmin === true;
+  const userRole = normalizeRole(user?.role);
+  const isAdmin = userRole === "ADMIN" || user?.isAdmin === true;
 
   // Extracts display name (falls back to email or generic user text)
   const displayName = user?.firstName || user?.email?.split("@")[0] || "Account";

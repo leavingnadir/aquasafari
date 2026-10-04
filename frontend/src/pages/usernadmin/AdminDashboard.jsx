@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Users, UserCheck, Ship, CreditCard, Compass, ArrowRight, ShieldCheck, FileText, ExternalLink, MessageSquare } from "lucide-react";
+import { Users, UserCheck, Ship, CreditCard, Compass, ShieldCheck, FileText, ExternalLink, MessageSquare } from "lucide-react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import usePageTitle from "../../hooks/usePageTitle";
 

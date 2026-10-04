@@ -1,13 +1,20 @@
 package com.aquasafari.backend.payment;
 
+import com.aquasafari.backend.booking.dto.TripAvailabilityDTO;
+import com.aquasafari.backend.booking.entity.Booking;
+import com.aquasafari.backend.booking.repository.BookingRepository;
+import com.aquasafari.backend.booking.service.TripLookupService;
 import com.aquasafari.backend.payment.dto.PaymentResponse;
 import com.aquasafari.backend.payment.dto.ProcessPaymentRequest;
 import com.aquasafari.backend.payment.dto.UpdatePaymentRequest;
 import com.aquasafari.backend.payment.exception.PaymentDeclinedException;
 import com.aquasafari.backend.payment.exception.PaymentNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -17,10 +24,15 @@ import java.util.stream.Collectors;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final BookingRepository bookingRepository;
+    private final TripLookupService tripLookupService;
     private final Random random = new Random();
 
-    public PaymentService(PaymentRepository paymentRepository) {
+    public PaymentService(PaymentRepository paymentRepository, BookingRepository bookingRepository,
+                          TripLookupService tripLookupService) {
         this.paymentRepository = paymentRepository;
+        this.bookingRepository = bookingRepository;
+        this.tripLookupService = tripLookupService;
     }
 
     /**
@@ -32,7 +44,19 @@ public class PaymentService {
      */
     @Transactional
     public PaymentResponse processPayment(ProcessPaymentRequest request) {
-        Payment payment = new Payment(request.getBookingId(), request.getAmount(), request.getPaymentMethod());
+        Booking booking = bookingRepository.findById(request.getBookingId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Booking not found: " + request.getBookingId()));
+        TripAvailabilityDTO trip = tripLookupService.getTripAvailability(booking.getTripId());
+        BigDecimal bookingTotal = trip.getPricePerSeat()
+            .multiply(BigDecimal.valueOf(booking.getPassengerCount()));
+
+        if (request.getAmount().compareTo(bookingTotal) != 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Payment amount does not match the booking total: " + bookingTotal);
+        }
+
+        Payment payment = new Payment(request.getBookingId(), bookingTotal, request.getPaymentMethod());
 
         boolean gatewayApproved = simulateGatewayCall(request);
 

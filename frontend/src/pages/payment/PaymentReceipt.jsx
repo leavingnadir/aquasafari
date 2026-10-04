@@ -1,5 +1,5 @@
 import React from "react";
-import { Receipt, CheckCircle2, AlertCircle } from "lucide-react";
+import { Receipt, Download } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const STATUS_STYLES = {
@@ -39,7 +39,7 @@ export default function PaymentReceipt({ payment }) {
   const statusClass = STATUS_STYLES[payment.paymentStatus] || STATUS_STYLES.PENDING;
 
   return (
-    <div className="mx-auto w-full max-w-md overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-2xl font-body text-content-primary relative">
+    <div className="receipt-print-area mx-auto w-full max-w-md overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-2xl font-body text-content-primary relative">
       
       {/* Background Glow Accent */}
       <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
@@ -89,8 +89,43 @@ export default function PaymentReceipt({ payment }) {
 
       {/* Footer Note */}
       <div className="border-t border-surface-800 bg-surface/50 px-8 py-4 text-center text-xs text-content-secondary">
-        Keep this receipt as proof of payment for your trip.
+        <p>Keep this receipt as proof of payment for your trip.</p>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="receipt-print-button mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-brand-500 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-brand-600"
+        >
+          <Download size={15} />
+          <span>Download PDF</span>
+        </button>
       </div>
+
+      <style>{`
+        @media print {
+          @page { margin: 16mm; }
+          body * { visibility: hidden !important; }
+          .receipt-print-area, .receipt-print-area * { visibility: visible !important; }
+          .receipt-print-area {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+            overflow: visible !important;
+            border: 1px solid #d4d4d8 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: #fff !important;
+            color: #111 !important;
+          }
+          .receipt-print-area * {
+            color: #111 !important;
+            background-color: #fff !important;
+            border-color: #d4d4d8 !important;
+          }
+          .receipt-print-button { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

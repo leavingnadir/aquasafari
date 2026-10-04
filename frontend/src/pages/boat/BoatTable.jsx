@@ -1,6 +1,6 @@
-import React from "react";
 import { StatusBadge, ConditionBadge } from "./BoatBadges";
 import { Anchor, Edit2, Trash2 } from "lucide-react";
+import { getBoatFallbackImage, getBoatImage } from "./boatImages";
 
 export default function BoatTable({ boats, onEdit, onDelete }) {
   if (boats.length === 0) {
@@ -42,21 +42,15 @@ export default function BoatTable({ boats, onEdit, onDelete }) {
                   {boat.boatId}
                 </td>
                 <td className="px-4 py-3">
-                  {boat.imageUrl ? (
-                    <img 
-                      src={boat.imageUrl} 
-                      alt={boat.name} 
-                      className="h-10 w-14 rounded-lg object-cover border border-surface-800"
-                      onError={(e) => {
-                        // Fallback if the URL fails to load
-                        e.target.src = "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600";
-                      }}
-                    />
-                  ) : (
-                    <div className="flex h-10 w-14 items-center justify-center rounded-lg bg-surface-800 text-[10px] text-content-muted">
-                      No Image
-                    </div>
-                  )}
+                  <img
+                    src={getBoatImage(boat)}
+                    alt={boat.name}
+                    className="h-10 w-14 rounded-lg object-cover border border-surface-800"
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = getBoatFallbackImage(boat.boatType);
+                    }}
+                  />
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 font-display font-medium text-content-primary">
                   {boat.name}

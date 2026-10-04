@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
+import { normalizeRole, useAuth } from "../context/AuthContext.jsx";
 
 /**
  * Wrap any route that needs a logged-in user:
@@ -21,8 +21,13 @@ export default function ProtectedRoute({ children, roles }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (roles && !roles.includes(auth.role)) {
-    return <Navigate to="/" replace />;
+  if (roles) {
+    const normalizedRole = normalizeRole(auth.role);
+    const allowedRoles = roles.map((role) => normalizeRole(role));
+
+    if (!allowedRoles.includes(normalizedRole)) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;

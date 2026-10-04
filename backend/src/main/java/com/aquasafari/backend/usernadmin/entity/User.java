@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,8 +72,22 @@ public abstract class User implements UserDetails {
     // ---- Spring Security UserDetails contract ----
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + getRole().name()));
+    public Collection getAuthorities() {
+        Role role = getRole();
+        if (role == null) {
+            return Collections.emptyList();
+        }
+
+        String authorityString = "ROLE_" + role.name().toUpperCase();
+        var authorities = new java.util.ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(authorityString));
+
+        // Back-compat for older tokens / seed data that used ADMINISTRATOR
+        if (role == Role.ADMIN) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMINISTRATOR"));
+        }
+
+        return authorities;
     }
 
     @Override

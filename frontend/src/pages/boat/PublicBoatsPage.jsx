@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
-import { Ship, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
+import { getBoatFallbackImage, getBoatImage } from "./boatImages";
 
 export default function PublicBoatsPage() {
   usePageTitle("Boats");
@@ -32,10 +33,14 @@ export default function PublicBoatsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {boats.map((boat) => (
             <div key={boat.boatId || boat.id} className="rounded-3xl border border-surface-800 bg-surface-900 overflow-hidden shadow-xl">
-              <img 
-                src={boat.imageUrl || "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600"} 
-                alt={boat.name} 
+              <img
+                src={getBoatImage(boat)}
+                alt={boat.name}
                 className="h-48 w-full object-cover"
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = getBoatFallbackImage(boat.boatType);
+                }}
               />
               <div className="p-6">
                 <h3 className="font-display text-xl mb-1">{boat.name}</h3>

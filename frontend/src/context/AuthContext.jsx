@@ -3,6 +3,26 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 const AuthContext = createContext(null);
 const STORAGE_KEY = "aquasafari_auth";
 
+export function normalizeRole(roleValue) {
+  if (!roleValue && roleValue !== 0) return null;
+
+  const raw = typeof roleValue === "string" ? roleValue : roleValue?.name || roleValue?.role;
+  const normalized = String(raw ?? "").trim().toUpperCase().replace(/^ROLE_/, "");
+
+  if (normalized === "ADMINISTRATOR") return "ADMIN";
+  return normalized || null;
+}
+
+function normalizeStoredAuth(rawAuth) {
+  if (!rawAuth || typeof rawAuth !== "object") return rawAuth;
+
+  const normalizedRole = normalizeRole(rawAuth.role);
+  return {
+    ...rawAuth,
+    role: normalizedRole || rawAuth.role,
+  };
+}
+
 export function AuthProvider({ children }) {
   const [auth, setAuth] = useState(null); // { token, userId, email, firstName, lastName, role }
   const [loading, setLoading] = useState(true);
@@ -11,7 +31,8 @@ export function AuthProvider({ children }) {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        setAuth(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setAuth(normalizeStoredAuth(parsed));
       } catch {
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -20,8 +41,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   function setSession(authResponse) {
-    setAuth(authResponse);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(authResponse));
+    const normalized = normalizeStoredAuth(authResponse);
+    setAuth(normalized);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
   }
 
   function logout() {

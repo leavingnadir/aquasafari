@@ -82,10 +82,11 @@ public class SecurityConfig {
 
                         // 3. Specific Admin module rules
                         .requestMatchers("/api/admin/customers", "/api/admin/customers/**").permitAll() 
-                        .requestMatchers("/api/admin/staff/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/admin/staff", "/api/admin/staff/**")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_ADMINISTRATOR")
 
                         // 4. Catch-all for remaining admin routes
-                        .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ADMINISTRATOR")
 
                         // 5. Everything else needs a valid token
                         .anyRequest().authenticated()

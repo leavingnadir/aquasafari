@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { processPayment } from "../../api/paymentApi";
-import axiosClient from "../../api/axiosClient"; 
+import axiosClient from "../../api/axiosClient";
 import PaymentReceipt from "./PaymentReceipt";
 import { CreditCard, ShieldCheck, Lock, ArrowRight, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -32,43 +32,52 @@ export default function ProcessPayment() {
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Dynamically load the correct price from URL or backend booking details
+  // Lock the displayed total to the selected booking and its trip price.
   useEffect(() => {
-    if (!urlBookingId) return;
+    let cancelled = false;
+    setForm((prev) => ({ ...prev, bookingId: urlBookingId, amount: "Loading..." }));
+    setErrorMessage("");
 
-    // 1. Check if the amount was explicitly passed in the URL query string first
-    const urlAmount = searchParams.get("amount");
-    if (urlAmount) {
-      setForm((prev) => ({
-        ...prev,
-        amount: Number(urlAmount).toFixed(2),
-      }));
-      return;
+    if (!urlBookingId) {
+      setForm((prev) => ({ ...prev, amount: "Unavailable" }));
+      setErrorMessage("A booking reference is required to load the payment total.");
+      setStatus("error");
+      return () => {
+        cancelled = true;
+      };
     }
 
-    // 2. Otherwise, fetch it dynamically via the booking API endpoint
     async function fetchBookingDetails() {
       try {
         const response = await axiosClient.get(`/bookings/${urlBookingId}`);
         const bookingData = response.data;
+        const tripResponse = await axiosClient.get(`/bookings/trips/${bookingData.tripId}`);
+        const pricePerSeat = Number(tripResponse.data.pricePerSeat);
+        const passengerCount = Number(bookingData.passengerCount);
+        const exactAmount = pricePerSeat * passengerCount;
+
+        if (!Number.isFinite(exactAmount) || exactAmount <= 0) {
+          throw new Error("The total for this booking could not be calculated.");
+        }
         
-        console.log("Fetched Booking Data from Backend:", bookingData);
-        
-        // Extract exact price based on common property naming conventions
-        const exactAmount = bookingData.totalPrice || bookingData.price || bookingData.trip?.price || "5000.00";
-        
-        setForm((prev) => ({
-          ...prev,
-          amount: Number(exactAmount).toFixed(2),
-        }));
+        if (!cancelled) {
+          setForm((prev) => ({ ...prev, amount: exactAmount.toFixed(2) }));
+          setStatus("idle");
+        }
       } catch (err) {
-        console.error("Failed to fetch booking details, falling back to default", err);
-        setForm((prev) => ({ ...prev, amount: "5000.00" }));
+        if (!cancelled) {
+          setForm((prev) => ({ ...prev, amount: "Unavailable" }));
+          setErrorMessage(err.message || "Unable to load the booking total.");
+          setStatus("error");
+        }
       }
     }
 
     fetchBookingDetails();
-  }, [urlBookingId, searchParams]);
+    return () => {
+      cancelled = true;
+    };
+  }, [urlBookingId]);
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -278,7 +287,7 @@ export default function ProcessPayment() {
 
             <button
               type="submit"
-              disabled={status === "submitting" || form.amount === "Loading..."}
+              disabled={status === "submitting" || !Number.isFinite(Number(form.amount)) || Number(form.amount) <= 0}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand-500 py-4 text-sm font-semibold uppercase tracking-wider text-white transition-all hover:bg-brand-600 active:scale-98 disabled:opacity-60 shadow-lg shadow-brand-500/25"
             >
               {status === "submitting" ? (
