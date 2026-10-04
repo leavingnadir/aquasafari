@@ -69,6 +69,7 @@ public class TripService {
         existing.setBoatId(incoming.getBoatId());
         existing.setOperatorId(incoming.getOperatorId());
         existing.setGuideId(incoming.getGuideId());
+        existing.setImageUrl(incoming.getImageUrl());
 
         requireFreeSlot(existing, id);
         return tripRepository.save(existing);

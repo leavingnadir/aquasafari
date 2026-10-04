@@ -33,7 +33,7 @@ public class TripLookupService {
      */
     public List<TripAvailabilityDTO> searchTrips(String routeKeyword, LocalDate tripDate) {
         StringBuilder sql = new StringBuilder(
-                "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, t.Price, b.Capacity " +
+            "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, t.ImageUrl, t.Price, b.Capacity " +
                 "FROM TRIP t JOIN BOAT b ON t.BoatID = b.BoatID WHERE 1=1");
         List<Object> params = new java.util.ArrayList<>();
 
@@ -62,6 +62,7 @@ public class TripLookupService {
                     rs.getDate("TripDate").toLocalDate(),
                     rs.getTime("DepartureTime").toLocalTime(),
                     rs.getString("Duration"),
+                    rs.getString("ImageUrl"),
                     capacity,
                     reserved,
                     finalPrice
@@ -73,7 +74,7 @@ public class TripLookupService {
      * Fetches a single trip's availability using the real database price.
      */
     public TripAvailabilityDTO getTripAvailability(Long tripId) {
-        String sql = "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, t.Price, b.Capacity " +
+        String sql = "SELECT t.TripID, t.Route, t.TripDate, t.DepartureTime, t.Duration, t.ImageUrl, t.Price, b.Capacity " +
                 "FROM TRIP t JOIN BOAT b ON t.BoatID = b.BoatID WHERE t.TripID = ?";
 
         List<TripAvailabilityDTO> results = jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -89,6 +90,7 @@ public class TripLookupService {
                     rs.getDate("TripDate").toLocalDate(),
                     rs.getTime("DepartureTime").toLocalTime(),
                     rs.getString("Duration"),
+                    rs.getString("ImageUrl"),
                     capacity,
                     reserved,
                     finalPrice

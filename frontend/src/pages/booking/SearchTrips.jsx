@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { searchTrips, bookTrip } from "../../api/bookingApi";
 import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
@@ -39,6 +39,17 @@ export default function SearchTrips() {
     }
   };
 
+  // Load every scheduled trip the moment the page opens, so customers land on
+  // a full list rather than an empty "search to begin" screen. The route/date
+  // form below still narrows this down to a specific trip on demand — it
+  // calls the exact same runSearch, just with non-empty filters.
+  useEffect(() => {
+    runSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isFiltered = Boolean(route || date);
+
   const handleBook = async (trip) => {
     if (!customerId) {
       setError("Set a customer ID above before booking.");
@@ -59,8 +70,8 @@ export default function SearchTrips() {
         passengerCount: count,
       });
       setConfirmation(booking);
-      
-      // Refresh search results to show reduced available seats immediately
+
+      // Refresh the current view (all trips, or the active filter) to show reduced available seats immediately
       await runSearch();
 
       // Automatically redirect to the correct payment checkout route matching App.jsx
@@ -96,7 +107,7 @@ export default function SearchTrips() {
           </h1>
         </div>
         <p className="mt-2 text-sm text-content-secondary">
-          Search by route or date, then reserve seats — availability updates live.
+          Every scheduled trip is listed below — search by route or date to narrow it down.
         </p>
       </header>
 
@@ -140,6 +151,27 @@ export default function SearchTrips() {
           {loading && <Loader2 size={14} className="animate-spin" />}
           <span>{loading ? "Searching…" : "Search trips"}</span>
         </button>
+        {isFiltered && (
+          <button
+            type="button"
+            onClick={() => {
+              setRoute("");
+              setDate("");
+              // runSearch reads route/date from state, which only updates on
+              // the next render, so pass explicit empty filters here instead
+              // of relying on runSearch() picking up the clear immediately.
+              setLoading(true);
+              setError("");
+              searchTrips({ route: "", date: "" })
+                .then(setTrips)
+                .catch((err) => setError(err.message))
+                .finally(() => setLoading(false));
+            }}
+            className="flex items-center justify-center rounded-full border border-surface-800 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-content-secondary transition-all hover:border-surface-700 hover:text-content-primary"
+          >
+            Clear
+          </button>
+        )}
       </form>
 
       {error && (
@@ -168,12 +200,10 @@ export default function SearchTrips() {
         </div>
       )}
 
-      {trips === null && !loading && (
-        <div className="rounded-[2.5rem] border border-dashed border-surface-800 bg-surface-900 px-6 py-16 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-surface-800 bg-surface text-content-muted">
-            <Search size={20} />
-          </div>
-          <p className="text-sm font-medium text-content-primary">Search above to see available safari trips.</p>
+      {trips === null && loading && (
+        <div className="flex flex-col items-center gap-3 rounded-[2.5rem] border border-dashed border-surface-800 bg-surface-900 px-6 py-16 text-center">
+          <Loader2 size={20} className="animate-spin text-content-muted" />
+          <p className="text-sm font-medium text-content-primary">Loading scheduled trips…</p>
         </div>
       )}
 
@@ -182,8 +212,10 @@ export default function SearchTrips() {
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-surface-800 bg-surface text-content-muted">
             <Compass size={20} />
           </div>
-          <p className="text-sm font-medium text-content-primary">No trips match that search.</p>
-          <p className="mt-1 text-xs text-content-secondary">Try a different route or date.</p>
+          <p className="text-sm font-medium text-content-primary">
+            {isFiltered ? "No trips match that search." : "No trips are scheduled right now."}
+          </p>
+          {isFiltered && <p className="mt-1 text-xs text-content-secondary">Try a different route or date.</p>}
         </div>
       )}
 
@@ -191,12 +223,12 @@ export default function SearchTrips() {
         {trips?.map((trip) => {
           const isFull = trip.seatsAvailable <= 0;
           const passengerCount = passengerCounts[trip.tripId] ?? 1;
-          
-          const unitPrice = 
-            trip.pricePerSeat ?? 
-            trip.pricePerPerson ?? 
-            trip.basePrice ?? 
-            trip.price ?? 
+
+          const unitPrice =
+            trip.pricePerSeat ??
+            trip.pricePerPerson ??
+            trip.basePrice ??
+            trip.price ??
             0;
 
           const total = (unitPrice * passengerCount).toFixed(2);
@@ -204,9 +236,19 @@ export default function SearchTrips() {
           return (
             <li
               key={trip.tripId}
-              className="rounded-[2.5rem] border border-surface-800 bg-surface-900 p-6 shadow-xl transition-colors hover:border-surface-700"
+              className="overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-xl transition-colors hover:border-surface-700"
             >
-              <div className="flex flex-wrap items-center justify-between gap-6">
+              <img
+                src={trip.imageUrl || "https://placehold.co/800x400?text=AquaSafari"}
+                alt={trip.route}
+                className="h-44 w-full object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "https://placehold.co/800x400?text=AquaSafari";
+                }}
+              />
+              <div className="flex flex-wrap items-center justify-between gap-6 p-6">
                 <div>
                   <h2 className="font-display text-xl font-normal text-content-primary">{trip.route}</h2>
                   <p className="mt-1 text-xs text-content-secondary">

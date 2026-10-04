@@ -4,6 +4,7 @@ import {
   getTrips,
   getResources,
   deleteTrip,
+  updateTrip,
   formatTime,
   formatPrice,
   nameFor,
@@ -20,8 +21,11 @@ import {
   Users,
   Calendar,
   DollarSign,
+  ImagePlus,
 } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
+
+const PLACEHOLDER_IMG = "https://placehold.co/160x120?text=AquaSafari";
 
 export default function TripList() {
   usePageTitle("Trip Management");
@@ -33,6 +37,7 @@ export default function TripList() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [banner, setBanner] = useState(null);
+  const [savingImageId, setSavingImageId] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -75,6 +80,27 @@ export default function TripList() {
       await load();
     } catch (err) {
       setBanner({ tone: "error", text: err.message, details: err.conflicts });
+    }
+  };
+
+  // TripController only exposes a full-object PUT /api/trips/{id} (no
+  // PATCH), so updating just the image means re-sending the whole trip with
+  // imageUrl changed. updateTrip() already carries the auth token and base
+  // URL the rest of this page uses, so this stays consistent with every
+  // other call here instead of hitting the backend a different way.
+  const handleSetImage = async (trip) => {
+    const url = window.prompt("Image URL for this trip:", trip.imageUrl || "");
+    if (url === null) return; // user cancelled
+    setBanner(null);
+    setSavingImageId(trip.tripId);
+    try {
+      await updateTrip(trip.tripId, { ...trip, imageUrl: url.trim() || null });
+      setBanner({ tone: "ok", text: `Image updated for trip #${trip.tripId}` });
+      await load();
+    } catch (err) {
+      setBanner({ tone: "error", text: err.message, details: err.conflicts });
+    } finally {
+      setSavingImageId(null);
     }
   };
 
@@ -183,6 +209,7 @@ export default function TripList() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-surface-800 text-[11px] font-bold uppercase tracking-wider text-content-secondary">
                 <tr>
+                  <th className="px-6 py-4">Image</th>
                   <th className="px-6 py-4">Trip</th>
                   <th className="px-6 py-4">Departure</th>
                   <th className="px-6 py-4">Boat</th>
@@ -194,6 +221,18 @@ export default function TripList() {
               <tbody className="divide-y divide-surface-800">
                 {visible.map((trip) => (
                   <tr key={trip.tripId} className="align-top transition-colors hover:bg-surface/50">
+                    <td className="px-6 py-5">
+                      <img
+                        src={trip.imageUrl || PLACEHOLDER_IMG}
+                        alt={trip.route}
+                        className="h-14 w-20 rounded-xl border border-surface-800 object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = PLACEHOLDER_IMG;
+                        }}
+                      />
+                    </td>
                     <td className="px-6 py-5">
                       <p className="font-display text-base font-normal text-content-primary">{trip.route}</p>
                       <p className="text-xs text-content-muted font-mono">Trip #{trip.tripId}</p>
@@ -225,6 +264,18 @@ export default function TripList() {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex flex-wrap justify-end gap-2 text-xs font-semibold uppercase tracking-wider">
+                        <button
+                          onClick={() => handleSetImage(trip)}
+                          disabled={savingImageId === trip.tripId}
+                          className="flex items-center gap-1.5 rounded-full border border-surface-800 bg-surface px-4 py-2 text-content-secondary transition-all hover:bg-surface-800 hover:text-content-primary disabled:opacity-50"
+                        >
+                          {savingImageId === trip.tripId ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <ImagePlus size={12} />
+                          )}
+                          <span>Set image</span>
+                        </button>
                         <button
                           onClick={() => navigate(`/trips/${trip.tripId}/edit`)}
                           className="rounded-full border border-surface-800 bg-surface px-4 py-2 text-content-secondary transition-all hover:bg-surface-800 hover:text-content-primary"

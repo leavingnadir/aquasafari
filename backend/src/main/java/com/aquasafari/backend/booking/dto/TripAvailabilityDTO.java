@@ -17,6 +17,7 @@ public class TripAvailabilityDTO {
     private LocalDate tripDate;
     private LocalTime departureTime;
     private String duration;
+    private String imageUrl;
     private Integer boatCapacity;
     private Integer seatsReserved;
     private Integer seatsAvailable;
@@ -27,13 +28,14 @@ public class TripAvailabilityDTO {
     }
 
     public TripAvailabilityDTO(Long tripId, String route, LocalDate tripDate, LocalTime departureTime,
-                                String duration, Integer boatCapacity, Integer seatsReserved,
+                                String duration, String imageUrl, Integer boatCapacity, Integer seatsReserved,
                                 BigDecimal pricePerSeat) {
         this.tripId = tripId;
         this.route = route;
         this.tripDate = tripDate;
         this.departureTime = departureTime;
         this.duration = duration;
+        this.imageUrl = imageUrl;
         this.boatCapacity = boatCapacity;
         this.seatsReserved = seatsReserved;
         this.seatsAvailable = boatCapacity - seatsReserved;
@@ -78,6 +80,14 @@ public class TripAvailabilityDTO {
 
     public void setDuration(String duration) {
         this.duration = duration;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Integer getBoatCapacity() {

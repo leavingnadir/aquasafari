@@ -17,14 +17,15 @@ import java.time.LocalTime;
  *   TripID INT IDENTITY PK, BoatID INT NOT NULL FK -> BOAT,
  *   OperatorID INT NOT NULL FK -> [USER], GuideID INT NOT NULL FK -> [USER],
  *   TripDate DATE, DepartureTime TIME, Duration VARCHAR(50),
- *   Route VARCHAR(150), Price DECIMAL(10,2)
+ *   Route VARCHAR(150), Price DECIMAL(10,2), ImageUrl VARCHAR(500) NULL
  *
  * BOAT and [USER] belong to other modules, so the three keys are held as plain
  * Integer columns. That keeps this module compiling on its own and stops two
  * people mapping the same join twice.
  *
- * No new columns are declared here on purpose: with ddl-auto=update, any extra
- * field would silently ALTER the shared table for all six members.
+ * ImageUrl was added after the original EER/DDL (see add_trip_images.sql) --
+ * nullable, since trips created before that migration (or without a photo
+ * yet) shouldn't break on insert.
  */
 @Entity
 @Table(name = "TRIP")
@@ -68,6 +69,11 @@ public class Trip {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     @Column(name = "Price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
+
+    /** Cover photo shown on the trip card in Search Trips. Nullable -- the
+     *  frontend falls back to a placeholder image when this is null. */
+    @Column(name = "ImageUrl", length = 500)
+    private String imageUrl;
 
     /* ------------------- helpers for conflict detection ------------------- */
 
@@ -119,4 +125,7 @@ public class Trip {
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

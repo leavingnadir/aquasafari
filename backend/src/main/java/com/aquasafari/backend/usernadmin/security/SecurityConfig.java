@@ -73,6 +73,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/bookings", "/api/bookings/**").permitAll()
                         .requestMatchers("/api/payments", "/api/payments/**").permitAll()
                         
+                        // Added Trip Management module endpoints
+                        .requestMatchers("/api/trips", "/api/trips/**").permitAll()
+                        .requestMatchers("/api/trips/resources/**").permitAll()
+                        
                         // 2. Feedback module routes (requires authentication token)
                         .requestMatchers("/api/feedback/**").authenticated()
 
