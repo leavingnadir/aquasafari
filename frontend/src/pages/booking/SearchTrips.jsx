@@ -236,19 +236,19 @@ export default function SearchTrips() {
           return (
             <li
               key={trip.tripId}
-              className="overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-xl transition-colors hover:border-surface-700"
+              className="flex flex-col overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 shadow-xl transition-colors hover:border-surface-700 sm:flex-row"
             >
               <img
-                src={trip.imageUrl || "https://placehold.co/800x400?text=AquaSafari"}
+                src={trip.imageUrl || "https://placehold.co/400x400?text=AquaSafari"}
                 alt={trip.route}
-                className="h-44 w-full object-cover"
+                className="h-44 w-full shrink-0 object-cover sm:h-auto sm:w-56"
                 loading="lazy"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src = "https://placehold.co/800x400?text=AquaSafari";
+                  e.currentTarget.src = "https://placehold.co/400x400?text=AquaSafari";
                 }}
               />
-              <div className="flex flex-wrap items-center justify-between gap-6 p-6">
+              <div className="flex flex-1 flex-wrap items-center justify-between gap-6 p-6">
                 <div>
                   <h2 className="font-display text-xl font-normal text-content-primary">{trip.route}</h2>
                   <p className="mt-1 text-xs text-content-secondary">

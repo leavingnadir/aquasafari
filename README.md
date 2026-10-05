@@ -159,7 +159,6 @@ git pull origin main
 
 Use the credentials listed above to log into the respective role-based dashboards in the Aqua Safari application.
 
-
 ## 👨‍💻 Contributors
 
 | Name                  | Student ID  | Major Function              | Scrum Role       |

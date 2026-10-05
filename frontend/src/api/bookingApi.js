@@ -87,3 +87,34 @@ export async function getBooking(bookingId) {
   const response = await fetch(`${BASE_URL}/${bookingId}`);
   return handleResponse(response);
 }
+
+const ADMIN_BOOKINGS_URL = "http://localhost:8080/api/admin/bookings";
+
+function adminAuthHeaders(token) {
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export async function getAllBookingsForAdmin(token) {
+  const response = await fetch(ADMIN_BOOKINGS_URL, {
+    headers: adminAuthHeaders(token),
+  });
+  return handleResponse(response);
+}
+
+export async function confirmBookingForAdmin(token, bookingId) {
+  const response = await fetch(`${ADMIN_BOOKINGS_URL}/${bookingId}/confirm`, {
+    method: "POST",
+    headers: adminAuthHeaders(token),
+  });
+  return handleResponse(response);
+}
+
+export async function cancelBookingForAdmin(token, bookingId) {
+  const response = await fetch(`${ADMIN_BOOKINGS_URL}/${bookingId}/cancel`, {
+    method: "PUT",
+    headers: adminAuthHeaders(token),
+  });
+  return handleResponse(response);
+}

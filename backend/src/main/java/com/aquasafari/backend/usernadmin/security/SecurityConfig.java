@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -70,6 +71,8 @@ public class SecurityConfig {
                         // 1. Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/boats", "/api/boats/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_ADMINISTRATOR")
                         .requestMatchers("/api/bookings", "/api/bookings/**").permitAll()
                         .requestMatchers("/api/payments", "/api/payments/**").permitAll()
                         

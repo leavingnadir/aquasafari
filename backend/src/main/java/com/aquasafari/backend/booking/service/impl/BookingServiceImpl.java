@@ -99,6 +99,16 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getCustomerId().equals(customerId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This booking does not belong to you");
         }
+        return cancel(booking);
+    }
+
+    @Override
+    @Transactional
+    public BookingResponseDTO cancelBookingByAdmin(Long bookingId) {
+        return cancel(findBookingOrThrow(bookingId));
+    }
+
+    private BookingResponseDTO cancel(Booking booking) {
         if (booking.getBookingStatus() == BookingStatus.CANCELLED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Booking is already cancelled");
         }

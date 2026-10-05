@@ -20,6 +20,8 @@ public interface BookingService {
 
     BookingResponseDTO cancelBooking(Long bookingId, Long customerId);
 
+    BookingResponseDTO cancelBookingByAdmin(Long bookingId);
+
     List<BookingResponseDTO> viewBookingsForCustomer(Long customerId);
 
     BookingResponseDTO getBooking(Long bookingId);

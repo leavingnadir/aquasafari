@@ -1,4 +1,3 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -34,6 +33,8 @@ import CustomerManagement from "./pages/usernadmin/CustomerManagement.jsx";
 import Login from "./pages/usernadmin/Login.jsx";
 import Register from "./pages/usernadmin/Register.jsx";
 import StaffManagement from "./pages/usernadmin/StaffManagement.jsx";
+import DashboardOverview from "./pages/usernadmin/DashboardOverview";
+import AdminBookingManagement from "./pages/booking/AdminBookingManagement.jsx";
 
 // Trip module
 import TripList from "./pages/trip/TripList.jsx";
@@ -75,6 +76,14 @@ export default function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route
+              path="/admin/bookings"
+              element={
+                <ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}>
+                  <AdminBookingManagement />
+                </ProtectedRoute>
+              }
+            />
 
             <Route 
               path="/admin" 
@@ -83,6 +92,13 @@ export default function App() {
                   <AdminDashboard />
                 </ProtectedRoute>
               } 
+            />
+            <Route path="/admin/overview"
+              element={
+              <ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}>
+                <DashboardOverview />
+              </ProtectedRoute>
+              }
             />
 
             {/* Boat module (Restricted to Admin / Boat Operator) */}
