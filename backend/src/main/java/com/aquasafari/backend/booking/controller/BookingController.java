@@ -4,7 +4,9 @@ import com.aquasafari.backend.booking.dto.BookingRequestDTO;
 import com.aquasafari.backend.booking.dto.BookingResponseDTO;
 import com.aquasafari.backend.booking.dto.TripAvailabilityDTO;
 import com.aquasafari.backend.booking.service.BookingService;
+import com.aquasafari.backend.usernadmin.entity.User;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,27 +45,42 @@ public class BookingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookingResponseDTO bookTrip(@Valid @RequestBody BookingRequestDTO request) {
-        return bookingService.bookTrip(request);
+    public BookingResponseDTO bookTrip(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody BookingRequestDTO request) {
+        return bookingService.bookTrip(request, user.getUserId());
     }
 
-    @PostMapping("/{bookingId}/confirm")
-    public BookingResponseDTO confirmBooking(@PathVariable Long bookingId) {
-        return bookingService.confirmBooking(bookingId);
+    @GetMapping("/mine")
+    public List<BookingResponseDTO> viewMyBookings(@AuthenticationPrincipal User user) {
+        return bookingService.viewBookingsForCustomer(user.getUserId());
     }
 
-    @PutMapping("/{bookingId}/cancel")
-    public BookingResponseDTO cancelBooking(@PathVariable Long bookingId, @RequestParam Long customerId) {
-        return bookingService.cancelBooking(bookingId, customerId);
+    @GetMapping("/mine/{bookingId}")
+    public BookingResponseDTO getMyBooking(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long bookingId) {
+        return bookingService.getBookingForCustomer(bookingId, user.getUserId());
     }
 
-    @GetMapping("/customer/{customerId}")
-    public List<BookingResponseDTO> viewBookings(@PathVariable Long customerId) {
-        return bookingService.viewBookingsForCustomer(customerId);
+    @PostMapping("/mine/{bookingId}/confirm")
+    public BookingResponseDTO confirmMyBooking(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long bookingId) {
+        return bookingService.confirmBookingForCustomer(bookingId, user.getUserId());
+    }
+
+    @PutMapping("/mine/{bookingId}/cancel")
+    public BookingResponseDTO cancelMyBooking(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long bookingId) {
+        return bookingService.cancelBooking(bookingId, user.getUserId());
     }
 
     @GetMapping("/{bookingId}")
-    public BookingResponseDTO getBooking(@PathVariable Long bookingId) {
-        return bookingService.getBooking(bookingId);
+    public BookingResponseDTO getBooking(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long bookingId) {
+        return bookingService.getBookingForCustomer(bookingId, user.getUserId());
     }
 }

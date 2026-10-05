@@ -66,15 +66,6 @@ const ADMIN_SECTIONS = [
     color: "text-brand-400 bg-brand-500/10 border-brand-500/20",
   },
   {
-    title: "Payment Records",
-    description:
-      "Track all transaction logs, financial records, and booking revenues.",
-    icon: CreditCard,
-    to: "/payment/records",
-    badge: "Finance",
-    color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  },
-  {
     title: "Feedback Management",
     description:
       "Review and manage user ratings, comments, and system feedback.",
@@ -82,6 +73,15 @@ const ADMIN_SECTIONS = [
     to: "/admin/feedback",
     badge: "Support",
     color: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+  },
+  {
+    title: "Payment Records",
+    description:
+      "Track all transaction logs, financial records, and booking revenues.",
+    icon: CreditCard,
+    to: "/payment/records",
+    badge: "Finance",
+    color: "text-amber-400 bg-amber-500/10 border-amber-500/20",
   },
   {
     title: "Payment History",

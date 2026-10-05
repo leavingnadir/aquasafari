@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { searchTrips, bookTrip } from "../../api/bookingApi";
-import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
 import { Search, Calendar, Compass, ShieldAlert, CheckCircle2, Loader2, Users, CreditCard } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const statusStyles = {
   ok: "text-emerald-400",
@@ -13,11 +13,11 @@ const statusStyles = {
 export default function SearchTrips() {
   usePageTitle("Search Trips");
   const navigate = useNavigate();
-  const [customerId, setCustomerId] = useState(getStoredCustomerId());
+  const { auth } = useAuth();
   const [route, setRoute] = useState("");
   const [date, setDate] = useState("");
   const [trips, setTrips] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   // passenger count entered per-trip, keyed by tripId
@@ -39,20 +39,30 @@ export default function SearchTrips() {
     }
   };
 
-  // Load every scheduled trip the moment the page opens, so customers land on
-  // a full list rather than an empty "search to begin" screen. The route/date
-  // form below still narrows this down to a specific trip on demand — it
-  // calls the exact same runSearch, just with non-empty filters.
+  // Load scheduled trips on entry; the form still applies optional filters.
   useEffect(() => {
-    runSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let active = true;
+    searchTrips({})
+      .then((results) => {
+        if (active) setTrips(results);
+      })
+      .catch((err) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const isFiltered = Boolean(route || date);
 
   const handleBook = async (trip) => {
-    if (!customerId) {
-      setError("Set a customer ID above before booking.");
+    if (!auth?.token || !auth?.userId) {
+      setError("Please log in before booking a trip.");
       return;
     }
     const count = Number(passengerCounts[trip.tripId] || 1);
@@ -64,8 +74,7 @@ export default function SearchTrips() {
     setBookingTripId(trip.tripId);
     setError("");
     try {
-      const booking = await bookTrip({
-        customerId: Number(customerId),
+      const booking = await bookTrip(auth.token, {
         tripId: trip.tripId,
         passengerCount: count,
       });
@@ -110,10 +119,6 @@ export default function SearchTrips() {
           Every scheduled trip is listed below — search by route or date to narrow it down.
         </p>
       </header>
-
-      <div className="mb-6">
-        <CustomerIdBar customerId={customerId} onChange={setCustomerId} />
-      </div>
 
       <form
         onSubmit={runSearch}
@@ -280,14 +285,23 @@ export default function SearchTrips() {
                   <p className="text-xs text-content-secondary">
                     Est. total: <span className="font-mono font-semibold text-content-primary">Rs {total}</span>
                   </p>
-                  <button
-                    onClick={() => handleBook(trip)}
-                    disabled={isFull || bookingTripId === trip.tripId}
-                    className="flex items-center gap-2 rounded-full bg-brand-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {bookingTripId === trip.tripId && <Loader2 size={14} className="animate-spin" />}
-                    <span>{bookingTripId === trip.tripId ? "Reserving…" : "Reserve seats"}</span>
-                  </button>
+                  {auth?.token && auth?.userId ? (
+                    <button
+                      onClick={() => handleBook(trip)}
+                      disabled={isFull || bookingTripId === trip.tripId}
+                      className="flex items-center gap-2 rounded-full bg-brand-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {bookingTripId === trip.tripId && <Loader2 size={14} className="animate-spin" />}
+                      <span>{bookingTripId === trip.tripId ? "Reserving…" : "Reserve seats"}</span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="rounded-full bg-brand-500 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600"
+                    >
+                      Log in to reserve
+                    </Link>
+                  )}
                 </div>
               </div>
             </li>

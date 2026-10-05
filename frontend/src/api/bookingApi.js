@@ -37,54 +37,42 @@ export async function getTripAvailability(tripId) {
 }
 
 /**
- * Book Trip. (Create)
- * @param {{customerId: number, tripId: number, passengerCount: number}} payload
+ * Book Trip. The authenticated account is assigned as the booking owner.
+ * @param {string} token
+ * @param {{tripId: number, passengerCount: number}} payload
  */
-export async function bookTrip(payload) {
+export async function bookTrip(token, payload) {
   const response = await fetch(BASE_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(payload),
   });
   return handleResponse(response);
 }
 
-/**
- * Confirm Booking. (Update)
- * Normally triggered by the Payment module once payment succeeds;
- * exposed here too so the Booking module's own CRUD set is complete.
- */
-export async function confirmBooking(bookingId) {
-  const response = await fetch(`${BASE_URL}/${bookingId}/confirm`, {
+export async function confirmMyBooking(token, bookingId) {
+  const response = await fetch(`${BASE_URL}/mine/${bookingId}/confirm`, {
     method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
   });
   return handleResponse(response);
 }
 
-/**
- * Cancel Booking. (Delete - soft, status change to CANCELLED)
- */
-export async function cancelBooking(bookingId, customerId) {
-  const params = new URLSearchParams({ customerId });
-  const response = await fetch(`${BASE_URL}/${bookingId}/cancel?${params.toString()}`, {
+export async function cancelMyBooking(token, bookingId) {
+  const response = await fetch(`${BASE_URL}/mine/${bookingId}/cancel`, {
     method: "PUT",
+    headers: { Authorization: `Bearer ${token}` },
   });
   return handleResponse(response);
 }
 
-/**
- * View Bookings for a customer. (Read - list)
- */
-export async function getBookingsForCustomer(customerId) {
-  const response = await fetch(`${BASE_URL}/customer/${customerId}`);
-  return handleResponse(response);
-}
-
-/**
- * Get a single Booking. (Read - single)
- */
-export async function getBooking(bookingId) {
-  const response = await fetch(`${BASE_URL}/${bookingId}`);
+export async function getMyBookings(token) {
+  const response = await fetch(`${BASE_URL}/mine`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return handleResponse(response);
 }
 

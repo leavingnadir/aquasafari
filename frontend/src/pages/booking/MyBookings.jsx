@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import { getBookingsForCustomer, cancelBooking, confirmBooking } from "../../api/bookingApi";
-import CustomerIdBar, { getStoredCustomerId } from "./CustomerIdBar";
+import {
+  cancelMyBooking,
+  confirmMyBooking,
+  getMyBookings,
+} from "../../api/bookingApi";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { CalendarCheck, ShieldAlert, Loader2, Calendar, Users, XCircle, CheckCircle2 } from "lucide-react";
 
 const statusBadge = {
@@ -11,38 +15,49 @@ const statusBadge = {
 };
 
 export default function MyBookings() {
-  const [customerId, setCustomerId] = useState(getStoredCustomerId());
+  const { auth } = useAuth();
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancellingId, setCancellingId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
 
-  const load = async (id) => {
-    if (!id) return;
+  useEffect(() => {
+    let active = true;
+    getMyBookings(auth.token)
+      .then((data) => {
+        if (active) setBookings(data);
+      })
+      .catch((err) => {
+        if (active) setError(err.message || "Could not load your bookings.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [auth?.token, auth?.userId]);
+
+  const load = async () => {
     setLoading(true);
     setError("");
     try {
-      const data = await getBookingsForCustomer(id);
-      setBookings(data);
+      setBookings(await getMyBookings(auth.token));
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Could not load your bookings.");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    load(customerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleCancel = async (bookingId) => {
     setCancellingId(bookingId);
     setError("");
     try {
-      await cancelBooking(bookingId, Number(customerId));
-      await load(customerId);
+      await cancelMyBooking(auth.token, bookingId);
+      await load();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -54,8 +69,8 @@ export default function MyBookings() {
     setConfirmingId(bookingId);
     setError("");
     try {
-      await confirmBooking(bookingId);
-      await load(customerId);
+      await confirmMyBooking(auth.token, bookingId);
+      await load();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,19 +90,9 @@ export default function MyBookings() {
           </h1>
         </div>
         <p className="mt-2 text-sm text-content-secondary">
-          View your reservations, confirm, or cancel if plans change.
+          View, confirm, or cancel reservations made with your account.
         </p>
       </header>
-
-      <div className="mb-6">
-        <CustomerIdBar
-          customerId={customerId}
-          onChange={(id) => {
-            setCustomerId(id);
-            load(id);
-          }}
-        />
-      </div>
 
       {error && (
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-rose-400">

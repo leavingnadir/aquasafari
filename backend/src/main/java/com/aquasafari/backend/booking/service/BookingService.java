@@ -16,7 +16,7 @@ public interface BookingService {
 
     TripAvailabilityDTO getTripAvailability(Long tripId);
 
-    BookingResponseDTO bookTrip(BookingRequestDTO request);
+    BookingResponseDTO bookTrip(BookingRequestDTO request, Long customerId);
 
     BookingResponseDTO cancelBooking(Long bookingId, Long customerId);
 
@@ -27,4 +27,8 @@ public interface BookingService {
     BookingResponseDTO getBooking(Long bookingId);
 
     BookingResponseDTO confirmBooking(Long bookingId);
+
+    BookingResponseDTO confirmBookingForCustomer(Long bookingId, Long customerId);
+
+    BookingResponseDTO getBookingForCustomer(Long bookingId, Long customerId);
 }

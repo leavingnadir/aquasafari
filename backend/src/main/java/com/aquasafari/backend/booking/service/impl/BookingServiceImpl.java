@@ -53,7 +53,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponseDTO bookTrip(BookingRequestDTO request) {
+    public BookingResponseDTO bookTrip(BookingRequestDTO request, Long customerId) {
         TripAvailabilityDTO trip = tripLookupService.getTripAvailability(request.getTripId());
 
         if (request.getPassengerCount() > trip.getSeatsAvailable()) {
@@ -62,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = new Booking();
-        booking.setCustomerId(request.getCustomerId());
+        booking.setCustomerId(customerId);
         booking.setTripId(request.getTripId());
         booking.setPassengerCount(request.getPassengerCount());
         booking.setBookingDate(LocalDate.now());
@@ -76,8 +76,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingResponseDTO confirmBooking(Long bookingId) {
-        Booking booking = findBookingOrThrow(bookingId);
+        return confirm(findBookingOrThrow(bookingId));
+    }
 
+    @Override
+    @Transactional
+    public BookingResponseDTO confirmBookingForCustomer(Long bookingId, Long customerId) {
+        Booking booking = findBookingOrThrow(bookingId);
+        verifyOwner(booking, customerId);
+        return confirm(booking);
+    }
+
+    private BookingResponseDTO confirm(Booking booking) {
         if (booking.getBookingStatus() == BookingStatus.EXPIRED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Reservation expired before payment was completed");
@@ -95,10 +105,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingResponseDTO cancelBooking(Long bookingId, Long customerId) {
         Booking booking = findBookingOrThrow(bookingId);
-
-        if (!booking.getCustomerId().equals(customerId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This booking does not belong to you");
-        }
+        verifyOwner(booking, customerId);
         return cancel(booking);
     }
 
@@ -129,6 +136,19 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDTO getBooking(Long bookingId) {
         return BookingResponseDTO.fromEntity(findBookingOrThrow(bookingId));
+    }
+
+    @Override
+    public BookingResponseDTO getBookingForCustomer(Long bookingId, Long customerId) {
+        Booking booking = findBookingOrThrow(bookingId);
+        verifyOwner(booking, customerId);
+        return BookingResponseDTO.fromEntity(booking);
+    }
+
+    private void verifyOwner(Booking booking, Long customerId) {
+        if (!booking.getCustomerId().equals(customerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This booking does not belong to you");
+        }
     }
 
     private Booking findBookingOrThrow(Long bookingId) {

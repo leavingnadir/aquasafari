@@ -13,9 +13,11 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -71,9 +73,14 @@ public class SecurityConfig {
                         // 1. Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/boats", "/api/boats/**").permitAll()
+                        .requestMatchers("/api/bookings/mine", "/api/bookings/mine/**")
+                        .hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN", "ROLE_ADMINISTRATOR")
                         .requestMatchers(HttpMethod.GET, "/api/bookings")
                         .hasAnyAuthority("ROLE_ADMIN", "ROLE_ADMINISTRATOR")
-                        .requestMatchers("/api/bookings", "/api/bookings/**").permitAll()
+                        .requestMatchers("/api/bookings/trips/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/bookings")
+                        .hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN", "ROLE_ADMINISTRATOR")
+                        .requestMatchers("/api/bookings", "/api/bookings/**").authenticated()
                         .requestMatchers("/api/payments", "/api/payments/**").permitAll()
                         
                         // Added Trip Management module endpoints
@@ -94,6 +101,8 @@ public class SecurityConfig {
                         // 5. Everything else needs a valid token
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
