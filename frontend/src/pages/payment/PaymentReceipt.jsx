@@ -76,12 +76,14 @@ export default function PaymentReceipt({ payment }) {
         <Detail label="Amount" value={formatCurrency(payment.amount)} emphasize />
         <Detail label="Method" value={(payment.paymentMethod || "—").replace("_", " ")} />
         <Detail label="Date & Time" value={formatDate(payment.paymentDate)} span2 />
-        <Detail
-          label="Confirmation Code"
-          value={payment.transactionReference || "—"}
-          mono
-          span2
-        />
+        {payment.transactionReference && (
+          <Detail
+            label="Confirmation Code"
+            value={payment.transactionReference}
+            mono
+            span2
+          />
+        )}
         {payment.paymentStatus === "DECLINED" && (
           <Detail label="Decline Reason" value={payment.declineReason || "—"} span2 warn />
         )}

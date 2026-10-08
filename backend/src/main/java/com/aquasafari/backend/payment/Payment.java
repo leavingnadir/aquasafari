@@ -42,19 +42,11 @@ public class Payment {
     private PaymentStatus paymentStatus;
 
     // Confirmation code returned by the payment gateway (step 4 of main scenario)
-    // NOTE: the actual PAYMENT table has no TransactionReference column.
-    // Marked @Transient so Hibernate doesn't try to select/insert it (which
-    // would throw "Invalid column name"). Value is still usable in-memory
-    // for the current request/response, but is NOT persisted or reloadable
-    // on a future GET. Ask the team about ALTER TABLE PAYMENT ADD
-    // TransactionReference VARCHAR(100) if you want this to actually persist.
-    @Transient
+    @Column(name = "TransactionReference", length = 100)
     private String transactionReference;
 
     // Populated on extension 3a (transaction declined)
-    // NOTE: same issue - no DeclineReason column in the actual table.
-    // @Transient for the same reason as above.
-    @Transient
+    @Column(name = "DeclineReason", length = 255)
     private String declineReason;
 
     public Payment() {

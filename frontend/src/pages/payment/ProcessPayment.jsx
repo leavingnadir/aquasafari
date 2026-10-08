@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { processPayment } from "../../api/paymentApi";
+import { formatPaymentError, processPayment } from "../../api/paymentApi";
 import axiosClient from "../../api/axiosClient";
 import PaymentReceipt from "./PaymentReceipt";
 import { CreditCard, ShieldCheck, Lock, ArrowRight, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
@@ -50,24 +50,40 @@ export default function ProcessPayment() {
     async function fetchBookingDetails() {
       try {
         const response = await axiosClient.get(`/bookings/${urlBookingId}`);
-        const bookingData = response.data;
-        const tripResponse = await axiosClient.get(`/bookings/trips/${bookingData.tripId}`);
-        const pricePerSeat = Number(tripResponse.data.pricePerSeat);
+        const bookingData = response.data || {};
+        const tripId = bookingData.tripId;
         const passengerCount = Number(bookingData.passengerCount);
-        const exactAmount = pricePerSeat * passengerCount;
 
+        if (!tripId || !Number.isFinite(passengerCount) || passengerCount <= 0) {
+          throw new Error("Booking or trip data is incomplete.");
+        }
+
+        let tripResponse;
+        try {
+          tripResponse = await axiosClient.get(`/bookings/trips/${tripId}`);
+        } catch (bookingError) {
+          tripResponse = await axiosClient.get(`/trips/${tripId}`);
+        }
+
+        const pricePerSeat = Number(tripResponse.data?.pricePerSeat ?? tripResponse.data?.pricePerSeatValue);
+        if (!Number.isFinite(pricePerSeat) || pricePerSeat <= 0) {
+          throw new Error("The trip price is unavailable.");
+        }
+
+        const exactAmount = pricePerSeat * passengerCount;
         if (!Number.isFinite(exactAmount) || exactAmount <= 0) {
           throw new Error("The total for this booking could not be calculated.");
         }
-        
+
         if (!cancelled) {
           setForm((prev) => ({ ...prev, amount: exactAmount.toFixed(2) }));
           setStatus("idle");
         }
       } catch (err) {
         if (!cancelled) {
+          const paymentError = formatPaymentError(err);
           setForm((prev) => ({ ...prev, amount: "Unavailable" }));
-          setErrorMessage(err.message || "Unable to load the booking total.");
+          setErrorMessage(paymentError.message || "Unable to load the booking total.");
           setStatus("error");
         }
       }
@@ -83,18 +99,76 @@ export default function ProcessPayment() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  function updateCardNumber(value) {
+    if (/[^0-9 ]/.test(value)) {
+      setErrorMessage("Card number can contain digits and spaces only.");
+      setStatus("error");
+      return;
+    }
+    update("cardNumber", value);
+    if (/^Card number/.test(errorMessage)) {
+      setErrorMessage("");
+      setStatus("idle");
+    }
+  }
+
+  function updateCardHolderName(value) {
+    if (/\d/.test(value)) {
+      setErrorMessage("Card holder's name cannot contain numbers.");
+      setStatus("error");
+      return;
+    }
+    update("cardHolderName", value);
+    if (/^Card holder/.test(errorMessage) || /^Enter the card holder/.test(errorMessage)) {
+      setErrorMessage("");
+      setStatus("idle");
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
 
+    const bookingIdNum = Number(form.bookingId);
+    if (!Number.isSafeInteger(bookingIdNum) || bookingIdNum <= 0) {
+      setErrorMessage("A valid booking reference is required.");
+      setStatus("error");
+      return;
+    }
+
+    const amountNum = Number(form.amount);
+    if (!Number.isFinite(amountNum) || amountNum <= 0) {
+      setErrorMessage("Payment total is not available yet.");
+      setStatus("error");
+      return;
+    }
+
     if (form.paymentMethod === "CREDIT_CARD") {
-      if (!form.cardNumber || form.cardNumber.replace(/\s/g, "").length < 16) {
-        setErrorMessage("Test Validation Failed: Please enter a valid 16-digit card number.");
+      const digits = form.cardNumber.replace(/\s/g, "");
+      if (!/^\d{16}$/.test(digits)) {
+        setErrorMessage("Card number must contain exactly 16 digits.");
         setStatus("error");
         return;
       }
-      if (!form.expiryDate || !form.expiryDate.includes("/")) {
-        setErrorMessage("Test Validation Failed: Invalid expiry date format (use MM/YY).");
+      if (!/^[\p{L} .'-]{3,}$/u.test((form.cardHolderName || "").trim())) {
+        setErrorMessage("Card holder's name must contain at least 3 letters and cannot contain numbers.");
+        setStatus("error");
+        return;
+      }
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(form.expiryDate || "")) {
+        setErrorMessage("Expiry must be MM/YY.");
+        setStatus("error");
+        return;
+      }
+
+      const [mm, yy] = form.expiryDate.split("/").map(Number);
+      const expiryYear = 2000 + yy;
+      const now = new Date();
+      if (
+        expiryYear < now.getFullYear() ||
+        (expiryYear === now.getFullYear() && mm < now.getMonth() + 1)
+      ) {
+        setErrorMessage("Card has expired.");
         setStatus("error");
         return;
       }
@@ -103,8 +177,8 @@ export default function ProcessPayment() {
     setStatus("submitting");
     try {
       const response = await processPayment({
-        bookingId: Number(form.bookingId),
-        amount: Number(form.amount),
+        bookingId: bookingIdNum,
+        amount: amountNum,
         paymentMethod: form.paymentMethod,
         cardNumber: form.cardNumber,
         cardHolderName: form.cardHolderName,
@@ -187,6 +261,7 @@ export default function ProcessPayment() {
         {/* Form Container */}
         <form
           onSubmit={handleSubmit}
+          noValidate
           className="relative overflow-hidden rounded-[2.5rem] border border-surface-800 bg-surface-900 p-8 sm:p-10 shadow-2xl"
         >
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-brand-500/10 blur-3xl pointer-events-none" />
@@ -252,9 +327,10 @@ export default function ProcessPayment() {
                     required
                     type="text"
                     value={form.cardHolderName}
-                    onChange={(e) => update("cardHolderName", e.target.value)}
+                    onChange={(e) => updateCardHolderName(e.target.value)}
                     className="input-field"
                     placeholder="A. Perera"
+                    autoComplete="cc-name"
                   />
                 </Field>
 
@@ -266,9 +342,10 @@ export default function ProcessPayment() {
                       inputMode="numeric"
                       maxLength={19}
                       value={form.cardNumber}
-                      onChange={(e) => update("cardNumber", e.target.value)}
+                      onChange={(e) => updateCardNumber(e.target.value)}
                       className="input-field font-mono"
                       placeholder="4111 1111 1111 1111 (16 digits)"
+                      autoComplete="cc-number"
                     />
                   </Field>
                   <Field label="Expiry">

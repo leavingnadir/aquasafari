@@ -3,6 +3,7 @@ package com.aquasafari.backend.payment.dto;
 import com.aquasafari.backend.payment.PaymentMethod;
 import com.aquasafari.backend.payment.PaymentStatus;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 
 import java.math.BigDecimal;
 
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 public class UpdatePaymentRequest {
 
     @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
+    @Digits(integer = 10, fraction = 2, message = "Amount must have at most 2 decimal places")
     private BigDecimal amount;
 
     private PaymentMethod paymentMethod;

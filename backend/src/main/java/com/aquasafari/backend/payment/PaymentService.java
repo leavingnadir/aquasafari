@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -44,6 +46,8 @@ public class PaymentService {
      */
     @Transactional
     public PaymentResponse processPayment(ProcessPaymentRequest request) {
+        validatePaymentDetails(request);
+
         Booking booking = bookingRepository.findById(request.getBookingId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Booking not found: " + request.getBookingId()));
@@ -75,10 +79,45 @@ public class PaymentService {
         }
     }
 
+    private void validatePaymentDetails(ProcessPaymentRequest request) {
+        if (request.getPaymentMethod() != PaymentMethod.CREDIT_CARD) {
+            return;
+        }
+
+        String cardNumber = request.getCardNumber() == null
+            ? ""
+            : request.getCardNumber().replace(" ", "");
+        if (!cardNumber.matches("\\d{16}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Card number must contain exactly 16 digits and no other characters.");
+        }
+
+        String cardHolderName = request.getCardHolderName() == null
+            ? ""
+            : request.getCardHolderName().trim();
+        if (!cardHolderName.matches("[\\p{L} .'-]{3,}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Card holder's name must contain at least 3 letters and cannot contain numbers.");
+        }
+
+        String expiry = request.getExpiryDate() == null ? "" : request.getExpiryDate();
+        if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expiry must be in MM/YY format.");
+        }
+        try {
+            YearMonth expiryMonth = YearMonth.parse("20" + expiry.substring(3) + "-" + expiry.substring(0, 2));
+            if (expiryMonth.isBefore(YearMonth.now())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card has expired.");
+            }
+        } catch (DateTimeParseException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Expiry must be in MM/YY format.");
+        }
+    }
+
     /** Placeholder for the real Payment Gateway integration (Stripe/PayHere/etc). */
     private boolean simulateGatewayCall(ProcessPaymentRequest request) {
-        // 90% approval rate simulation
-        return random.nextInt(10) < 9;
+        // Card payments in this demo accept any valid 16-digit number.
+        return request.getPaymentMethod() == PaymentMethod.CREDIT_CARD || random.nextInt(10) < 9;
     }
 
     private String generateConfirmationCode() {

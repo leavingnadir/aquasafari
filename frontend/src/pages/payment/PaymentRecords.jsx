@@ -3,7 +3,7 @@ import { getPaymentHistory, updatePayment, deletePaymentRecord } from "../../api
 import { ShieldCheck, Edit3, Trash2, AlertCircle, ShieldAlert, X, Check } from "lucide-react";
 import usePageTitle from "../../hooks/usePageTitle";
 
-const METHODS = ["CARD", "BANK_TRANSFER", "MOBILE_WALLET"];
+const METHODS = ["CREDIT_CARD", "BANK_TRANSFER", "MOBILE_WALLET"];
 const STATUSES = ["PENDING", "PAID", "DECLINED", "REFUNDED"];
 
 const STATUS_CONFIG = {
@@ -66,11 +66,29 @@ export default function PaymentRecords() {
     setSaving(true);
     setError("");
     try {
-      const updated = await updatePayment(editingPayment.paymentId, {
-        amount: Number(editForm.amount),
-        paymentMethod: editForm.paymentMethod,
-        paymentStatus: editForm.paymentStatus,
-      });
+      const validMethods = new Set(METHODS);
+      const validStatuses = new Set(STATUSES);
+
+      if (editForm.paymentMethod && !validMethods.has(editForm.paymentMethod)) {
+        throw new Error("Invalid payment method selected.");
+      }
+      if (editForm.paymentStatus && !validStatuses.has(editForm.paymentStatus)) {
+        throw new Error("Invalid payment status selected.");
+      }
+
+      const payload = {};
+      const amountText = String(editForm.amount ?? "").trim();
+      if (amountText !== "") {
+        const amountNum = Number(amountText);
+        if (!Number.isFinite(amountNum) || amountNum <= 0) {
+          throw new Error("Amount must be a valid positive number.");
+        }
+        payload.amount = amountNum;
+      }
+      if (editForm.paymentMethod) payload.paymentMethod = editForm.paymentMethod;
+      if (editForm.paymentStatus) payload.paymentStatus = editForm.paymentStatus;
+
+      const updated = await updatePayment(editingPayment.paymentId, payload);
       setPayments((prev) =>
         prev.map((p) => (p.paymentId === updated.paymentId ? updated : p))
       );
