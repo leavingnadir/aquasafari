@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import feedbackApi from "../../api/feedbackApi";
 import { getCurrentUser } from "./currentUser";
 import FeedbackForm from "../../components/FeedbackForm";
@@ -20,6 +21,11 @@ export default function SubmitFeedbackPage() {
   const loadTrips = useCallback(async () => {
     setLoading(true);
     setError(null);
+    if (user?.userId == null) {
+      setError("Please log in with a customer account to view your trips.");
+      setLoading(false);
+      return;
+    }
     try {
       setTrips(await feedbackApi.reviewableTrips(user.userId));
     } catch (apiError) {
@@ -27,7 +33,7 @@ export default function SubmitFeedbackPage() {
     } finally {
       setLoading(false);
     }
-  }, [user.userId]);
+  }, [user?.userId]);
 
   useEffect(() => {
     loadTrips();
@@ -48,12 +54,20 @@ export default function SubmitFeedbackPage() {
   return (
     // Added pt-24 (or pt-28) to push the content down below the fixed navbar
     <main className="mx-auto max-w-3xl px-4 pt-28 pb-10">
-      <header className="mb-8">
-        <p className="eyebrow mb-2">Customer Portal</p>
-        <h1 className="text-2xl font-bold tracking-tight text-content-primary">Your trips</h1>
-        <p className="mt-1 max-w-prose text-sm text-content-muted">
-          Review a safari once it has finished and the payment is verified.
-        </p>
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="eyebrow mb-2">Customer Portal</p>
+          <h1 className="text-2xl font-bold tracking-tight text-content-primary">Your trips</h1>
+          <p className="mt-1 max-w-prose text-sm text-content-muted">
+            Review a safari once it has finished and the payment is verified.
+          </p>
+        </div>
+        <Link
+          to="/feedback/my-reviews"
+          className="rounded-lg border border-content-muted/30 px-4 py-2 text-sm font-medium text-content-primary transition-colors hover:bg-content-muted/10"
+        >
+          View your reviews
+        </Link>
       </header>
 
       {confirmation && (

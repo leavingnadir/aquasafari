@@ -148,7 +148,8 @@ public class FeedbackService {
             row.setBookingStatus(booking.getBookingStatus());
             row.setPaymentStatus(booking.getPaymentStatus());
 
-            Optional<Feedback> existing = feedbackRepository.findByBookingId(booking.getBookingId());
+            Optional<Feedback> existing =
+                    feedbackRepository.findFirstByBookingIdOrderByFeedbackIdAsc(booking.getBookingId());
             existing.ifPresent(feedback -> row.setExistingFeedbackId(feedback.getFeedbackId()));
 
             String blocker = reasonReviewIsBlocked(booking);

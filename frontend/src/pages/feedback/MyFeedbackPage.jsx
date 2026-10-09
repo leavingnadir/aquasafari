@@ -16,6 +16,11 @@ export default function MyFeedbackPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+    if (user?.userId == null) {
+      setError("Please log in with a customer account to view your reviews.");
+      setLoading(false);
+      return;
+    }
     try {
       setReviews(await feedbackApi.byCustomer(user.userId));
     } catch (apiError) {
@@ -23,7 +28,7 @@ export default function MyFeedbackPage() {
     } finally {
       setLoading(false);
     }
-  }, [user.userId]);
+  }, [user?.userId]);
 
   useEffect(() => {
     load();

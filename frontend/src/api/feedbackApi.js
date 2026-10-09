@@ -21,7 +21,10 @@ async function handleRequest(requestPromise) {
   } catch (error) {
     if (error.response) {
       const data = error.response.data;
-      throw new ApiError(data?.message ?? "Something went wrong. Try again.", {
+      const message = error.response.status === 401
+        ? "Your session is no longer valid. Please log in again."
+        : data?.message ?? "Something went wrong. Try again.";
+      throw new ApiError(message, {
         status: error.response.status,
         fieldErrors: data?.fieldErrors,
         flaggedWords: data?.flaggedWords,

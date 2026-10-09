@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
 
     /** One review per booking: used to block a second submission for the same trip. */
-    Optional<Feedback> findByBookingId(Integer bookingId);
+    Optional<Feedback> findFirstByBookingIdOrderByFeedbackIdAsc(Integer bookingId);
 
     boolean existsByBookingId(Integer bookingId);
 

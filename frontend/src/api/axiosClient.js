@@ -8,38 +8,14 @@ const axiosClient = axios.create({
   },
 });
 
-// Automatically inject the Authorization token into requests (crucial for new tabs/windows)
+// Add the token from the same session storage managed by AuthContext.
 axiosClient.interceptors.request.use(
   (config) => {
-    // Check all storage keys where tokens or user sessions are commonly saved, including aquasafari_auth
-    const possibleKeys = [
-  "aquasafari_customer_id1", 
-  "aquasafari_auth", 
-  "user", 
-  "auth", 
-  "currentUser", 
-  "token", 
-  "accessToken"
-];
-    let token = null;
-
-    for (const key of possibleKeys) {
-      const item = localStorage.getItem(key);
-      if (!item) continue;
-
-      try {
-        const parsed = JSON.parse(item);
-        if (parsed && typeof parsed === "object") {
-          token = parsed.token || parsed.accessToken;
-        } else if (typeof parsed === "string") {
-          token = parsed;
-        }
-      } catch (e) {
-        // If it's stored as a raw plain string token
-        token = item;
-      }
-
-      if (token) break;
+    let token;
+    try {
+      token = JSON.parse(localStorage.getItem("aquasafari_auth") || "null")?.token;
+    } catch (error) {
+      return Promise.reject(error);
     }
 
     if (token) {

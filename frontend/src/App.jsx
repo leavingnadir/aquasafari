@@ -197,8 +197,8 @@ export default function App() {
             <Route path="/destinations" element={<DestinationsPage />} />
             <Route path="/boats" element={<PublicBoatsPage />} />
 
-            <Route path="/feedback/submit" element={<SubmitFeedbackPage />} />
-            <Route path="/feedback/my-reviews" element={<MyFeedbackPage />} />
+            <Route path="/feedback/submit" element={<ProtectedRoute roles={["CUSTOMER"]}><SubmitFeedbackPage /></ProtectedRoute>} />
+            <Route path="/feedback/my-reviews" element={<ProtectedRoute roles={["CUSTOMER"]}><MyFeedbackPage /></ProtectedRoute>} />
 
             <Route path="/admin/feedback" element={<ProtectedRoute roles={["ADMIN", "ADMINISTRATOR"]}><ManageFeedbackPage /></ProtectedRoute>}/>
 

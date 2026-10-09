@@ -432,4 +432,52 @@ UPDATE [TRIP] SET ImageUrl = 'https://picsum.photos/seed/private-island-day-out/
 GO
 
 SELECT TripID, Route, ImageUrl FROM [TRIP];
-SELECT * FROM [TRIP];
+
+-- ============================================================
+-- AquaSafariDB · Additional FEEDBACK seed data for testing
+-- Assumes existing BOOKINGs: BookingID 1-7, CustomerIDs 5,6,7,8
+-- Run after the base seed script
+-- ============================================================
+USE AquaSafariDB;
+GO
+
+INSERT INTO [FEEDBACK] (BookingID, CustomerID, Rating, Comment)
+VALUES
+    -- 5-star positive reviews
+    (1, 5, 5, 'The coral reef tour was absolutely stunning. Our guide knew every fish species by name!'),
+    (3, 6, 5, 'Whale watching was a once-in-a-lifetime experience. We saw three blue whales!'),
+    (4, 5, 5, 'Snorkeling with the turtles was magical. The crew was professional and safety-conscious.'),
+    (5, 6, 5, 'The sunset cruise exceeded all expectations. Perfect ending to our holiday.'),
+    (7, 8, 5, 'Private island day out was worth every rupee. Luxury at its finest.'),
+
+    -- 4-star mixed reviews
+    (1, 6, 4, 'Great trip overall, though the boat felt a bit crowded for the group size.'),
+    (3, 7, 4, 'Whale watching was amazing but we had to wait 90 minutes for the boat to depart.'),
+    (4, 7, 4, 'Beautiful snorkeling spot. Would have liked more time in the water.'),
+    (6, 8, 4, 'Good value for money. The guide was knowledgeable but the lunch was average.'),
+
+    -- 3-star neutral
+    (5, 8, 3, 'Sunset was nice but the boat engine was quite loud throughout the trip.'),
+
+    -- 2-star negative
+    (2, 7, 2, 'Mangrove tour was disappointing. Saw very little wildlife and the boat was uncomfortable.'),
+
+    -- 1-star complaint
+    (6, 5, 1, 'Trip was cancelled at the last minute without proper notice. Very frustrating experience.'),
+
+    -- NULL comment (edge case -- text optional)
+    (2, 8, 4, NULL),
+
+    -- Long comment (tests text truncation / wrapping in the UI)
+    (7, 5, 5, 'This was hands-down the best day of our entire Sri Lanka trip. From the moment we boarded, the crew treated us like family. The private island was pristine, the food was fresh and delicious, and the snorkeling gear was top quality. Our guide shared fascinating stories about the local marine life and even helped my youngest child feel confident in the water. I cannot recommend AquaSafari enough -- we will definitely be back next season.');
+GO
+
+-- Verify the insert
+SELECT FeedbackID, BookingID, CustomerID, Rating, LEFT(Comment, 60) AS CommentPreview
+FROM FEEDBACK
+ORDER BY FeedbackID;
+GO
+
+-- ===========================
+-- ===========================
+SELECT * FROM [BOOKING];
